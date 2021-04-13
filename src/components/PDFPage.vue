@@ -105,7 +105,7 @@ export default {
 
     getId() {
       return "canvas-"+this.index;
-    }
+    },
   },
 
   methods: {
@@ -116,7 +116,7 @@ export default {
     },
 
     drawPage() {
-      console.log(this.index);
+      this.zoomScale = this.canvasAttrs.width/this.actualSizeViewport.width*PIXEL_RATIO;
       if (this.renderTask) return;
 
       const {viewport} = this;
@@ -174,13 +174,22 @@ export default {
     },
 
     mouseup(event) {
+      if (this.isMouseDown && this.selectedTool && this.toolConfig) {
+        this.$emit("edit-push", {
+          page: this.index,
+          tool: this.selectedTool,
+          scale: this.zoomScale,
+          toolConfig: this.toolConfig,
+          content: this.currentEdit
+        });
+      }
+      this.currentEdit = [];
       this.isMouseDown = false;
     },
 
     mousemove(event) {
       if (this.selectedTool && this.isMouseDown) {
         event.preventDefault();
-
 
         const canvas = document.getElementById(this.getId+"-edit");
         const context = canvas.getContext('2d');
@@ -195,6 +204,14 @@ export default {
         context.moveTo( this.x*scale, this.y*scale );
         context.lineTo( newX*scale, newY*scale );
         context.stroke();
+
+        this.currentEdit.push({
+          sx: this.x,
+          sy: this.y,
+          dx: newX,
+          dy: newY
+        });
+
         //[x, y] = [newX, newY];
         this.x = newX;
         this.y = newY;

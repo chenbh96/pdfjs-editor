@@ -28,10 +28,24 @@ export default {
     PDFViewer,
   },
 
+  created() {
+    var params = this.$route.query;
+    var _this = this;
+    if (params.fid && params.userid) {
+      this.$api.pdf.get(params.fid, params.userid).then(res=>{
+        if (res.data.data) {
+          _this.url = res.data.data.pdfUrl;
+        }
+      });
+    } else {
+      alert("请求参数错误，没有找到对应文件");
+    }
+  },
+
   data() {
     return {
       // url: "process.env.VUE_APP_PDF_URL",
-      url: "/pdf/rfc7540.pdf",
+      url: "",
       documentError: undefined,
       enableUploader: process.env.VUE_APP_UPLOAD_ENABLED === 'true',
     };

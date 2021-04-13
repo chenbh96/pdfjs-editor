@@ -22,6 +22,9 @@
 
       <PDFAction
         style="margin-right: 2.5em;"
+        @undo="undo"
+        @redo="redo"
+        @save="save"
         />
 
       <PDFPaginator
@@ -71,6 +74,9 @@ import PDFPreview from './PDFPreview';
 import PDFZoom from './PDFZoom';
 import PDFEdit from './PDFEdit';
 import PDFAction from './PDFAction';
+
+import {A4_WIDTH, A4_HEIGHT} from '@/utils/constants';
+import common from '@/utils/common';
 
 function floor(value, precision) {
   const multiplier = Math.pow(10, precision || 0);
@@ -150,7 +156,78 @@ export default {
 
     edit(value) {
       this.editData.push(value);
-    }
+    },
+
+    undo() {
+    },
+
+    redo() {
+      this.$api.pdf.editSignal(566, 1570).then(res=>{
+        console.log(res);
+      });
+    },
+
+    save() {
+      var ret = [];
+
+      var pages = new Set();
+      for (var i in this.editData) {
+        pages.add(this.editData[i].page);
+      }
+
+      var self = this;
+      pages.forEach(index => {
+        var canvas = document.getElementById("canvas-"+index+"-edit");
+        var base64=canvas.toDataURL("image/png");
+        var img = new Image;
+
+        img.onload = resizeImage;
+        img.src = base64;
+
+        // 异步
+        function resizeImage() {
+          var newCanvas = document.createElement("canvas");
+          var ctx = newCanvas.getContext("2d");
+          if (canvas.width < canvas.height) {
+            newCanvas.width = A4_WIDTH;
+            newCanvas.height = A4_HEIGHT;
+          } else {
+            newCanvas.width = A4_HEIGHT;
+            newCanvas.height = A4_WIDTH;
+          }
+          ctx.drawImage(img, 0, 0, newCanvas.width, newCanvas.height);
+          var newBase64 = newCanvas.toDataURL();
+          ret.push({
+            page: index+1,
+            base64: newBase64,
+            action: "edit",
+          });
+
+          if (ret.length == pages.size) {
+            var requestBody = {
+              "fid": parseInt(self.$route.query.fid),
+              "data": ret,
+              // [
+              //     {
+              //         "page": 0,
+              //         "base64": "",
+              //         "action": "add"
+              //     }
+              // ],
+              "userid": self.$route.query.userid,
+              "title": "",
+              "version": "",
+              "uid": 0
+            };
+            console.log(requestBody);
+            self.$api.pdf.save(requestBody).then(res => {
+              console.log(res);
+            });
+          }
+        }
+      });
+
+    },
   },
 
   watch: {

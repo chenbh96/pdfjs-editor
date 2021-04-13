@@ -1,32 +1,39 @@
 <template>
   <div class="pdf-action">
-    <a id="undo" @click.prevent.stop="clickUndo($event)" class="icon"><UndoIcon /></a>
-    <a id="redo" @click.prevent.stop="clickRedo($event)" class="icon"><RedoIcon /></a>
+    <a id="undo" @click.prevent.stop="clickUndo()" class="icon"><UndoIcon /></a>
+    <a id="redo" @click.prevent.stop="clickRedo()" class="icon"><RedoIcon /></a>
+    <a id="save" @click.prevent.stop="clickSave()" class="icon"><SaveIcon /></a>
   </div>
 </template>
 
 <script>
 import UndoIcon from '../assets/icon-undo.svg';
 import RedoIcon from '../assets/icon-redo.svg';
+import SaveIcon from '../assets/icon-save.svg';
 
 export default {
   name: 'PDFEdit',
 
   components: {
     UndoIcon,
-    RedoIcon
+    RedoIcon,
+    SaveIcon
   },
 
   props: {
   },
 
   methods: {
-    clickUndo(event) {
-
+    clickUndo() {
+      this.$emit("undo");
     },
 
-    clickRedo(event) {
+    clickRedo() {
+      this.$emit("redo");
+    },
 
+    clickSave() {
+      this.$emit("save");
     }
   },
 }
@@ -50,5 +57,8 @@ export default {
 }
 .pdf-action a:active {
   background-color: #ffff00;
+}
+#redo {
+  margin-right: 1.5em;
 }
 </style>

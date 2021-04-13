@@ -8,7 +8,7 @@ module.exports = {
   publicPath,
   configureWebpack: {
     devServer: {
-      port: process.env.PORT,
+      port: process.env.BASE_PORT,
       watchOptions: {
         poll: true,
       },
