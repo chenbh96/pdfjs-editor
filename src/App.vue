@@ -19,6 +19,7 @@
 <script>
 import PDFUploader from './components/PDFUploader.vue'
 import PDFViewer from './components/PDFViewer.vue'
+import common from '@/utils/common.js'
 
 export default {
   name: 'app',
@@ -45,7 +46,7 @@ export default {
   data() {
     return {
       // url: "process.env.VUE_APP_PDF_URL",
-      url: "",
+      url: common.fileUrl(),
       documentError: undefined,
       enableUploader: process.env.VUE_APP_UPLOAD_ENABLED === 'true',
     };
