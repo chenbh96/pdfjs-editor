@@ -5,6 +5,10 @@
       v-bind="canvasAttrs">  
     </canvas>
     <canvas :id="getId + '-edit'"
+      class="drawing-canvas"
+      v-bind="canvasAttrs"
+      ></canvas>
+    <canvas :id="getId + '-layer'"
       class="drawing-canvas" 
       v-bind="canvasAttrs"
       @mousedown="mousedown($event)"
@@ -24,6 +28,21 @@ const log = debug('app:components/PDFPage');
 
 import {PIXEL_RATIO} from '../utils/constants';
 import visible from '../directives/visible';
+
+function position(event, canvas) {
+  if (event.offsetX) {
+    return {
+      x: event.offsetX,
+      y: event.offsetY
+    };
+  } else {
+    var rect = canvas.getBoundingClientRect();
+    return {
+      x: event.touches[0].clientX - rect.left,
+      y: event.touches[0].clientY - rect.top
+    };
+  }
+}
 
 export default {
   name: 'PDFPage',
@@ -175,6 +194,14 @@ export default {
 
     mouseup(event) {
       if (this.isMouseDown && this.selectedTool && this.toolConfig) {
+        switch(this.selectedTool) {
+          case "pen":
+            this.pen(event, "finish");
+            break;
+          case "highlighter":
+            this.highlighter(event, "finish");
+            break;
+        }
         this.$emit("edit-push", {
           page: this.index,
           tool: this.selectedTool,
@@ -191,20 +218,28 @@ export default {
       if (this.selectedTool && this.isMouseDown) {
         event.preventDefault();
 
-        const canvas = document.getElementById(this.getId+"-edit");
-        const context = canvas.getContext('2d');
-        var scale = this.canvasAttrs.width/this.actualSizeViewport.width*PIXEL_RATIO;
-        this.currentWidth = this.toolConfig.size;
-        const newX = event.offsetX;
-        const newY = event.offsetY;
-        context.strokeStyle = this.toolConfig.color;
-        context.lineWidth = this.toolConfig.size;
-        context.lineCap = 'round';
-        context.beginPath();
-        context.moveTo( this.x*scale, this.y*scale );
-        context.lineTo( newX*scale, newY*scale );
-        context.stroke();
+        switch(this.selectedTool) {
+          case "pen":
+            this.pen(event, "draw");
+            break;
+          case "highlighter":
+            this.highlighter(event, "draw");
+            break;
+        }
+      }
+    },
 
+    pen(event, mode="draw") {
+      const cLayer = document.getElementById(this.getId+"-layer");
+      const cCtx = cLayer.getContext('2d');
+      cCtx.clearRect(0, 0, cLayer.width, cLayer.height);
+
+      var scale = this.canvasAttrs.width/this.actualSizeViewport.width*PIXEL_RATIO;
+      var canvas = document.getElementById(this.getId+"-edit");
+      if (mode == "draw") {
+        canvas = cLayer;
+        const newX = position(event, canvas).x;
+        const newY = position(event, canvas).y;
         this.currentEdit.push({
           sx: this.x,
           sy: this.y,
@@ -212,11 +247,56 @@ export default {
           dy: newY
         });
 
-        //[x, y] = [newX, newY];
         this.x = newX;
         this.y = newY;
       }
+      var context = canvas.getContext('2d');
+      context.strokeStyle = this.toolConfig.color;
+      context.lineWidth = this.toolConfig.size;
+      context.lineCap = 'round';
+
+      context.beginPath();
+      this.currentEdit.forEach(seg => {
+        context.moveTo(seg.sx*scale, seg.sy*scale);
+        context.lineTo(seg.dx*scale, seg.dy*scale);
+      });
+      context.stroke();
     },
+
+    highlighter(event, mode="draw") {
+      // layer层清空
+      const cLayer = document.getElementById(this.getId+"-layer");
+      const cCtx = cLayer.getContext('2d');
+      cCtx.clearRect(0, 0, cLayer.width, cLayer.height);
+
+      var scale = this.canvasAttrs.width/this.actualSizeViewport.width*PIXEL_RATIO;
+      var canvas = document.getElementById(this.getId+"-edit");
+      if (mode == "draw") {
+        canvas = cLayer;
+        const newX = position(event, canvas).x;
+        const newY = position(event, canvas).y;
+        this.currentEdit.push({
+          sx: this.x,
+          sy: this.y,
+          dx: newX,
+          dy: newY
+        });
+
+        this.x = newX;
+        this.y = newY;
+      }
+      var context = canvas.getContext('2d');
+      context.strokeStyle = "rgba(0,110,255, 0.3)";
+      context.lineWidth=30;
+      context.lineCap = 'round';
+
+      context.beginPath();
+      this.currentEdit.forEach(seg => {
+        context.moveTo(seg.sx*scale, seg.sy*scale);
+        context.lineTo(seg.dx*scale, seg.dy*scale);
+      });
+      context.stroke();
+    }
   },
 
   watch: {

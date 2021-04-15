@@ -1,8 +1,14 @@
 <template>
   <div class="pdf-viewer">
     <header class="pdf-viewer__header box-shadow">
-      <div class="pdf-preview-toggle">
+      <div class="menu-left-section">
         <a @click.prevent.stop="togglePreview" class="icon"><PreviewIcon /></a>
+
+        <PDFPaginator
+        v-model="currentPage"
+        :pageCount="pageCount"
+        style="margin-left: 2.5em"
+        />
       </div>
 
       <PDFZoom
@@ -27,10 +33,9 @@
         @save="save"
         />
 
-      <PDFPaginator
-        v-model="currentPage"
-        :pageCount="pageCount"
-        />
+      <UserInfo
+        class="menu-right-section"
+      />
 
       <slot name="header"></slot>
     </header>
@@ -74,6 +79,7 @@ import PDFPreview from './PDFPreview';
 import PDFZoom from './PDFZoom';
 import PDFEdit from './PDFEdit';
 import PDFAction from './PDFAction';
+import UserInfo from './UserInfo';
 
 import {A4_WIDTH, A4_HEIGHT} from '@/utils/constants';
 import common from '@/utils/common';
@@ -95,6 +101,7 @@ export default {
     PreviewIcon,
     PDFEdit,
     PDFAction,
+    UserInfo,
   },
 
   props: {
@@ -278,9 +285,18 @@ header {
   left: 15%;
 }
 
-.pdf-preview-toggle {
+.menu-left-section {
   position: absolute;
   left: 2.5em;
+  display: flex; 
+  align-items: center;
+}
+
+.menu-right-section {
+  position: absolute;
+  right: 0;
+  display: flex; 
+  align-items: center;
 }
 
 @media print {

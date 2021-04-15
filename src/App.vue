@@ -33,7 +33,11 @@ export default {
     var params = this.$route.query;
     var _this = this;
     if (params.fid && params.userid) {
-      this.$api.pdf.get(params.fid, params.userid).then(res=>{
+      this.$api.pdf.get({
+        fid: params.fid, 
+        userid: params.userid,
+        dtype: params.dtype ? params.dtype : 0
+      }).then(res=>{
         if (res.data.data) {
           _this.url = res.data.data.pdfUrl;
         }

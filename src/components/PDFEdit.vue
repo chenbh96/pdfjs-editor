@@ -1,26 +1,34 @@
 <template>
   <div class="pdf-edit">
-    <a id="pen" @click.prevent.stop="togglePen($event)" class="icon"><PenIcon /></a>
-    <div v-show="pen.show" class="screen" @click.prevent.stop="togglePen"></div>
+    <a id="pen" 
+    @mouseup.prevent.stop="togglePen($event)" 
+    @touchend.prevent.stop="togglePen($event)" 
+    class="icon"><PenIcon /></a>
+    <div v-show="pen.show" class="screen" @mouseup.prevent.stop="togglePen($event)"></div>
     <div v-show="pen.show" class="pen-option">
       <input type="color"  class="pen-color-picker  color-picker" @input="changePenColor($event.target.value)">
       <input type="range" class="pen-line-range" @input="changePenSize($event.target.value)" min="1" max="72" value="1">
       <span class="pen-range-span"><label class="pen-range-value">{{pen.size}}</label>Px</span>
     </div>
-    <a id="text"  class="icon"><TextIcon /></a>
+    <a id="highlighter" 
+    @mouseup.prevent.stop="toggleHighlighter($event)"
+    @touchend.prevent.stop="toggleHighlighter($event)" 
+    class="icon"
+    ><HighlighterIcon /></a>
   </div>
 </template>
 
 <script>
+import common from "@/utils/common.js";
 import PenIcon from '../assets/icon-pen.svg';
-import TextIcon from '../assets/icon-text.svg';
+import HighlighterIcon from '../assets/icon-highlighter.svg';
 
 export default {
   name: 'PDFEdit',
 
   components: {
     PenIcon,
-    TextIcon
+    HighlighterIcon
   },
 
   props: {
@@ -34,11 +42,16 @@ export default {
         color: "#000",
         size: 1,
       },
+      highlighter: {
+        show: false,
+        color: "rgba(255,255,0, 1)",
+        size: 10,
+      },
     }
   },
 
   methods: {
-    togglePen(e) {
+    togglePen(e, callback = false) {
       var target = null;
       if (e.target.tagName.toLowerCase() == 'a') {
         target = e.target;
@@ -46,8 +59,16 @@ export default {
         target = e.target.parentNode;
       } else {
         this.pen.show = false;
+        return;
       }
-      this.toggleSelected(target);
+      if (!callback && common.isDoubleClick(this.togglePen, e)) {
+        this.cancelTool();
+        return;
+      } 
+
+      if (callback) {
+        this.toggleSelected(target);
+      }
     },
 
     changePenSize(value) {
@@ -60,21 +81,46 @@ export default {
       this.$emit("update-config", this.pen);
     },
 
+    toggleHighlighter(e, callback) {
+      var target = null;
+      if (e.target.tagName.toLowerCase() == 'a') {
+        target = e.target;
+      } else if (e.target.parentNode.tagName.toLowerCase() == 'a') {
+        target = e.target.parentNode;
+      } else {
+        this.highlighter.show = false;
+        return;
+      }
+
+      if (!callback && common.isDoubleClick(this.toggleHighlighter, e)) {
+        this.cancelTool();
+        return;
+      } 
+
+      if (callback) {
+        this.toggleSelected(target);
+      }
+    },
+
     toggleSelected(target) {
+      console.log(target);
       if (target == null) {
         return true;
-      }
-      const selected = document.querySelector( '.selected' );
-      if (selected) {
-        selected.classList.remove('selected');
-        this.$emit("update-selected", null);
-        return false;
       } else {
+        this.cancelTool();
         target.classList.add("selected");
         this.$emit("update-selected", target.id);
         this.$emit("update-config", this[target.id]);
         this[target.id].show = true;
         return true;
+      }
+    },
+
+    cancelTool() {
+      const selected = document.querySelector( '.selected' );
+      if (selected) {
+        selected.classList.remove('selected');
+        this.$emit("update-selected", null);
       }
     },
   },

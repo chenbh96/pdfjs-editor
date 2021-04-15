@@ -7,25 +7,44 @@ import http from '@/utils/http'; // 导入http中创建的axios实例
 import common from '@/utils/common';
 
 const pdf = {
-    get (fid, userid) {
+
+    /**
+     * 获取pdf相关信息
+     * @author   Liuxy
+     * @datetime 2021-04-14T16:02:55+0800
+     * @param    params
+     *           fid
+     *           userid
+     *           dtype
+     */
+    get (params) {
         return http.get(`${base[common.env]}/v1/pdf/detail`, {
-            params: {
-                fid: fid,
-                userid: userid,
-            }
+            params: params
         });
     },
 
-    editSignal (fid, userid) {
+    /**
+     * 编辑发送信号
+     * @author   Liuxy
+     * @datetime 2021-04-14T16:02:13+0800
+     * @param  params
+     *         fid
+     *         userid
+     *         action   "edit"
+     */
+    editSignal (params) {
         return http.get(`${base[common.env]}/v1/pdf/detail`, {
-            params: {
-                fid: fid,
-                userid: userid,
-                action: "edit",
-            }
+            params: params
         });
     },
 
+    /**
+     * 保存pdf
+     * @author   Liuxy
+     * @datetime 2021-04-14T16:04:15+0800
+     * @param    {[type]}                 requestBody [description]
+     * @return   {[type]}                             [description]
+     */
     save (requestBody) {
         return http.post(`${base[common.env]}/v1/pdf/index`, requestBody);
     },

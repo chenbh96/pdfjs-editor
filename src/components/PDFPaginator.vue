@@ -40,8 +40,6 @@ export default {
 .pdf-paginator {
   color: white;
   font-weight: bold;
-  position: absolute;
-  right: 2.5em;
 }
 .pdf-paginator input {
   width: 2em;
