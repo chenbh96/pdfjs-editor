@@ -3,7 +3,9 @@
     <a id="pen" 
     @mouseup.prevent.stop="togglePen($event)" 
     @touchend.prevent.stop="togglePen($event)" 
-    class="icon"><PenIcon /></a>
+    class="icon">
+      <img src="@/assets/icons/pen.png"/>
+    </a>
     <div v-show="pen.show" class="screen" @mouseup.prevent.stop="togglePen($event)"></div>
     <div v-show="pen.show" class="pen-option">
       <input type="color"  class="pen-color-picker  color-picker" @input="changePenColor($event.target.value)">
@@ -14,7 +16,9 @@
     @mouseup.prevent.stop="toggleHighlighter($event)"
     @touchend.prevent.stop="toggleHighlighter($event)" 
     class="icon"
-    ><HighlighterIcon /></a>
+    ><!-- <HighlighterIcon /> -->
+      <img src="@/assets/icons/highlighter.png"/>
+    </a>
   </div>
 </template>
 
@@ -127,22 +131,12 @@ export default {
 }
 </script>
 
-<style>
+<style >
 .pdf-edit {
   position: relative;
 }
 .pdf-edit a {
   float: left;
-  cursor: pointer;
-  display: block;
-  border: 1px #333 solid;
-  background: white;
-  color: #333;
-  font-weight: bold;
-  line-height: 1.5em;
-  width: 1.5em;
-  height: 1.5em;
-  font-size: 1.5em;
 }
 .screen {
   position: fixed;

@@ -73,7 +73,7 @@ export default {
 body {
   margin: 0;
   padding: 0;
-  background-color: #606f7b;
+  background-color: #F0F2F4;
 }
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
@@ -104,18 +104,22 @@ input {
 a.icon {
   cursor: pointer;
   display: block;
-  border: 1px #333 solid;
-  background: white;
+  /*background: white;*/
   color: #333;
   font-weight: bold;
-  padding: 0.25em;
   width: 1em;
   height: 1em;
   font-size: 1.5em;
+  margin: 0 10px;
+}
+
+a.icon img {
+  width: 24px;
+  height: 24px;
 }
 
 .box-shadow {
-  box-shadow: 0 15px 30px 0 rgba(0, 0, 0, 0.11), 0 5px 15px 0 rgba(0, 0, 0, 0.08);
+  box-shadow: 0px 2px 21px 0px rgba(116, 116, 116, 0.15);
 }
 .overflow-hidden {
   overflow: hidden;

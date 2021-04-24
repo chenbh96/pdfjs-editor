@@ -79,6 +79,8 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
+  background-color: #F0F2F4 !important;
+  z-index: 100;
 }
 
 .scrolling-page {

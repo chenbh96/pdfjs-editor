@@ -1,6 +1,6 @@
 var common = {
-    env: process.env.NODE_ENV,
-    // env: "production",
+    // env: process.env.NODE_ENV,
+    env: "production",
     
     /**
      * 判空

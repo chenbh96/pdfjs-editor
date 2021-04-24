@@ -191,7 +191,7 @@ img,
 }
 
 .page-number {
-  color: white;
+  color: #666;
   font-weight: bold;
 }
 </style>

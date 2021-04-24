@@ -2,6 +2,7 @@
   <div
     class="scrolling-document"
     v-scroll.immediate="updateScrollBounds"
+    style="background-color: #efeff2;"
     >
     <ScrollingPage
       v-for="(page, index) in pages"
@@ -106,3 +107,8 @@ export default {
   },
 }
 </script>
+<style scoped>
+.scrolling-page:first-child {
+  padding-top: 1em;
+}
+</style>

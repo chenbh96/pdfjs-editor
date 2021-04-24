@@ -1,13 +1,15 @@
 <template>
   <div class="pdf-viewer">
-    <header class="pdf-viewer__header box-shadow">
+    <header class="pdf-viewer__header">
       <div class="menu-left-section">
-        <a @click.prevent.stop="togglePreview" class="icon"><PreviewIcon /></a>
+        <a @click.prevent.stop="togglePreview" class="icon">
+          <img src="@/assets/icons/preview.png"/>
+        </a>
 
         <PDFPaginator
         v-model="currentPage"
         :pageCount="pageCount"
-        style="margin-left: 2.5em"
+        style="margin-left: 1em"
         />
       </div>
 
@@ -15,19 +17,16 @@
         :scale="scale"
         @change="updateScale"
         @fit="updateFit"
-        style="margin-right: 5em;"
         />
 
       <PDFEdit
         :selected="selectedTool"
         @update-selected="updateSelectedTool"
         @update-config="updateToolConfig"
-        style="margin-right: 2.5em;"
         />
 
 
       <PDFAction
-        style="margin-right: 2.5em;"
         @undo="undo"
         @redo="redo"
         @save="save"
@@ -35,6 +34,7 @@
 
       <UserInfo
         class="menu-right-section"
+        @help="help"
       />
 
       <slot name="header"></slot>
@@ -66,6 +66,11 @@
           />
       </template>
     </PDFData>
+
+    <div class="modal-shadow" v-if="showModal">
+      <ModalShare class="modal" v-if="modals.help"/>
+      <ModalSave class="modal" v-if="modals.save" :show="modals.save" @close="closeSave"/>
+    </div>
   </div>
 </template>
 
@@ -80,9 +85,11 @@ import PDFZoom from './PDFZoom';
 import PDFEdit from './PDFEdit';
 import PDFAction from './PDFAction';
 import UserInfo from './UserInfo';
+import ModalShare from './modals/ModalShare';
+import ModalSave from './modals/ModalSave';
 
 import {A4_WIDTH, A4_HEIGHT} from '@/utils/constants';
-import common from '@/utils/common';
+// import common from '@/utils/common';
 
 function floor(value, precision) {
   const multiplier = Math.pow(10, precision || 0);
@@ -102,6 +109,8 @@ export default {
     PDFEdit,
     PDFAction,
     UserInfo,
+    ModalShare,
+    ModalSave,
   },
 
   props: {
@@ -116,10 +125,27 @@ export default {
       currentPage: 1,
       pageCount: undefined,
       isPreviewEnabled: false,
-      selectedTool: null,
-      toolConfig: null,
-      editData: [],
+      selectedTool: null, // 已选择工具
+      toolConfig: null, // 编辑工具配置
+      editData: [], // 编辑步骤存放
+      editLock: false, // 编辑锁，编辑时为true
+      modals: { // 所有弹窗判断
+        help: false,
+        save: false,
+      },
+      lastActionTimer: null, // 最后操作倒计时
     };
+  },
+
+  computed: {
+    showModal() {
+      for (var key in this.modals) {
+        if (this.modals[key]) {
+          return true;
+        }
+      }
+      return false;
+    },
   },
 
   methods: {
@@ -153,6 +179,7 @@ export default {
       this.isPreviewEnabled = !this.isPreviewEnabled;
     },
 
+    //////////////////// 编辑功能 ////////////////////
     updateSelectedTool(value) {
       this.selectedTool = value;
     },
@@ -174,73 +201,99 @@ export default {
       });
     },
 
+    // save() {
+    //   var ret = [];
+
+    //   var pages = new Set();
+    //   for (var i in this.editData) {
+    //     pages.add(this.editData[i].page);
+    //   }
+
+    //   var self = this;
+    //   pages.forEach(index => {
+    //     var canvas = document.getElementById("canvas-"+index+"-edit");
+    //     var base64=canvas.toDataURL("image/png");
+    //     var img = new Image;
+
+    //     img.onload = resizeImage;
+    //     img.src = base64;
+
+    //     // 异步
+    //     function resizeImage() {
+    //       var newCanvas = document.createElement("canvas");
+    //       var ctx = newCanvas.getContext("2d");
+    //       if (canvas.width < canvas.height) {
+    //         newCanvas.width = A4_WIDTH;
+    //         newCanvas.height = A4_HEIGHT;
+    //       } else {
+    //         newCanvas.width = A4_HEIGHT;
+    //         newCanvas.height = A4_WIDTH;
+    //       }
+    //       ctx.drawImage(img, 0, 0, newCanvas.width, newCanvas.height);
+    //       var newBase64 = newCanvas.toDataURL();
+    //       ret.push({
+    //         page: index+1,
+    //         base64: newBase64,
+    //         action: "edit",
+    //       });
+
+    //       if (ret.length == pages.size) {
+    //         var requestBody = {
+    //           "fid": parseInt(self.$route.query.fid),
+    //           "data": ret,
+    //           // [
+    //           //     {
+    //           //         "page": 0,
+    //           //         "base64": "",
+    //           //         "action": "add"
+    //           //     }
+    //           // ],
+    //           "userid": self.$route.query.userid,
+    //           "title": "",
+    //           "version": "",
+    //           "uid": 0
+    //         };
+    //         console.log(requestBody);
+    //         self.$api.pdf.save(requestBody).then(res => {
+    //           console.log(res);
+    //         });
+    //       }
+    //     }
+    //   });
+
+    // },
+
     save() {
-      var ret = [];
-
-      var pages = new Set();
-      for (var i in this.editData) {
-        pages.add(this.editData[i].page);
-      }
-
-      var self = this;
-      pages.forEach(index => {
-        var canvas = document.getElementById("canvas-"+index+"-edit");
-        var base64=canvas.toDataURL("image/png");
-        var img = new Image;
-
-        img.onload = resizeImage;
-        img.src = base64;
-
-        // 异步
-        function resizeImage() {
-          var newCanvas = document.createElement("canvas");
-          var ctx = newCanvas.getContext("2d");
-          if (canvas.width < canvas.height) {
-            newCanvas.width = A4_WIDTH;
-            newCanvas.height = A4_HEIGHT;
-          } else {
-            newCanvas.width = A4_HEIGHT;
-            newCanvas.height = A4_WIDTH;
-          }
-          ctx.drawImage(img, 0, 0, newCanvas.width, newCanvas.height);
-          var newBase64 = newCanvas.toDataURL();
-          ret.push({
-            page: index+1,
-            base64: newBase64,
-            action: "edit",
-          });
-
-          if (ret.length == pages.size) {
-            var requestBody = {
-              "fid": parseInt(self.$route.query.fid),
-              "data": ret,
-              // [
-              //     {
-              //         "page": 0,
-              //         "base64": "",
-              //         "action": "add"
-              //     }
-              // ],
-              "userid": self.$route.query.userid,
-              "title": "",
-              "version": "",
-              "uid": 0
-            };
-            console.log(requestBody);
-            self.$api.pdf.save(requestBody).then(res => {
-              console.log(res);
-            });
-          }
-        }
-      });
-
+      this.modals.save = true;
     },
+
+    closeSave() {
+      this.modals.save = false;
+      console.log(this.modals);
+    },
+
+    //////////////////// 用户菜单 ////////////////////
+
+    help() {
+      this.modals.help = true;
+    },
+
+    doNothing() {
+      return;
+    }
   },
 
   watch: {
     url() {
       this.currentPage = undefined;
     },
+    editData() {
+      clearTimeout(this.lastActionTimer);
+      var _this = this;
+      this.lastActionTimer = setTimeout(function(){
+        _this.modals.save = true;
+      }, 10000);
+    }
   },
 
   mounted() {
@@ -258,6 +311,7 @@ header {
   padding: 1em;
   position: relative;
   z-index: 99;
+  background-color: #F0F2F4;
 }
 .header-item {
   margin-right: 2.5em;
@@ -265,7 +319,7 @@ header {
 
 .pdf-viewer .pdf-viewer__document,
 .pdf-viewer .pdf-viewer__preview {
-  top: 70px;
+  top: 56px;
 }
 
 .pdf-viewer__preview {
@@ -275,7 +329,7 @@ header {
 }
 
 .pdf-viewer__document {
-  top: 70px;
+  top: 56px;
   width: 100%;
   left: 0;
 }
@@ -287,7 +341,7 @@ header {
 
 .menu-left-section {
   position: absolute;
-  left: 2.5em;
+  left: 1em;
   display: flex; 
   align-items: center;
 }
@@ -297,6 +351,23 @@ header {
   right: 0;
   display: flex; 
   align-items: center;
+}
+
+.modal-shadow {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  z-index: 999;
+}
+
+.modal {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
 }
 
 @media print {

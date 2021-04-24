@@ -1,9 +1,17 @@
 <template>
   <div class="pdf-zoom">
-    <a @click.prevent.stop="zoomIn" class="icon" :disabled="isDisabled"><ZoomInIcon /></a>
-    <a @click.prevent.stop="zoomOut" class="icon" :disabled="isDisabled"><ZoomOutIcon /></a>
-    <a @click.prevent.stop="fitWidth" class="icon" :disabled="isDisabled"><ExpandIcon /></a>
-    <a @click.prevent.stop="fitAuto" class="icon" :disabled="isDisabled"><ShrinkIcon /></a>
+    <a @click.prevent.stop="zoomIn" class="icon" :disabled="isDisabled">
+      <img src="@/assets/icons/zoomin.png"/>
+    </a>
+    <a @click.prevent.stop="zoomOut" class="icon" :disabled="isDisabled">
+      <img src="@/assets/icons/zoomout.png"/>
+    </a>
+    <a @click.prevent.stop="fitWidth" class="icon" :disabled="isDisabled">
+      <img src="@/assets/icons/cover.png"/>      
+    </a>
+    <a @click.prevent.stop="fitAuto" class="icon" :disabled="isDisabled">
+      <img src="@/assets/icons/contain.png"/>
+    </a>
   </div>
 </template>
 
@@ -67,15 +75,5 @@ export default {
 <style>
 .pdf-zoom a {
   float: left;
-  cursor: pointer;
-  display: block;
-  border: 1px #333 solid;
-  background: white;
-  color: #333;
-  font-weight: bold;
-  line-height: 1.5em;
-  width: 1.5em;
-  height: 1.5em;
-  font-size: 1.5em;
 }
 </style>
