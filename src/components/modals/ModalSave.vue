@@ -16,8 +16,8 @@
     </div>
     <div class="modal-footer">
       <el-row style="height: 100%; display: flex; align-items: center; justify-content: flex-end;">
-        <el-button size="mini" style="width: 80px;" round>保存</el-button>
-        <el-button type="primary" size="mini" style="width: 80px;" round>另存为</el-button>
+        <el-button size="mini" style="width: 80px;" @click="save" round>保存</el-button>
+        <el-button type="primary" size="mini" style="width: 80px;" @click="save" round>另存为</el-button>
       </el-row>
     </div>
   </div>
@@ -69,6 +69,10 @@ export default {
 
     close() {
       this.$emit("close");
+    },
+
+    save() {
+      this.$emit("save");
     }
   },
 }

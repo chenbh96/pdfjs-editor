@@ -42,6 +42,15 @@ export default {
           _this.url = res.data.data.pdfUrl;
         }
       });
+    } else if(params.code){
+      localStorage.fm_code = params.code
+      this.$api.pdf.get({
+        code: params.code
+      }).then(res=>{
+        if (res.data.data) {
+          _this.url = res.data.data.pdfUrl;
+        }
+      });
     } else {
       alert("请求参数错误，没有找到对应文件");
     }

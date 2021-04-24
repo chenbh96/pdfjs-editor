@@ -1,24 +1,28 @@
 <template>
   <div class="pdf-edit">
-    <a id="pen" 
-    @mouseup.prevent.stop="togglePen($event)" 
-    @touchend.prevent.stop="togglePen($event)" 
-    class="icon">
-      <img src="@/assets/icons/pen.png"/>
-    </a>
+    <el-tooltip class="item" effect="dark" content="Pen" :open-delay=1000 placement="bottom-start">
+      <a id="pen" 
+      @mouseup.prevent.stop="togglePen($event)" 
+      @touchend.prevent.stop="togglePen($event)" 
+      class="icon">
+        <img src="@/assets/icons/pen.png"/>
+      </a>
+    </el-tooltip>
     <div v-show="pen.show" class="screen" @mouseup.prevent.stop="togglePen($event)"></div>
     <div v-show="pen.show" class="pen-option">
       <input type="color"  class="pen-color-picker  color-picker" @input="changePenColor($event.target.value)">
       <input type="range" class="pen-line-range" @input="changePenSize($event.target.value)" min="1" max="72" value="1">
       <span class="pen-range-span"><label class="pen-range-value">{{pen.size}}</label>Px</span>
     </div>
-    <a id="highlighter" 
-    @mouseup.prevent.stop="toggleHighlighter($event)"
-    @touchend.prevent.stop="toggleHighlighter($event)" 
-    class="icon"
-    ><!-- <HighlighterIcon /> -->
-      <img src="@/assets/icons/highlighter.png"/>
-    </a>
+    <el-tooltip class="item" effect="dark" content="Highlighter" :open-delay=1000 placement="bottom-start">
+      <a id="highlighter" 
+      @mouseup.prevent.stop="toggleHighlighter($event)"
+      @touchend.prevent.stop="toggleHighlighter($event)" 
+      class="icon"
+      ><!-- <HighlighterIcon /> -->
+        <img src="@/assets/icons/highlighter.png"/>
+      </a>
+    </el-tooltip>
   </div>
 </template>
 
