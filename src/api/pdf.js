@@ -46,6 +46,12 @@ const pdf = {
      * @return   {[type]}                             [description]
      */
     save (requestBody) {
+        if (localStorage.fm_code) {
+            requestBody.code = localStorage.fm_code;
+        }
+        if (localStorage.fm_fid) {
+            requestBody.fid = parseInt(localStorage.fm_fid);
+        }
         return http.post(`${base[common.env]}/v1/pdf/index`, requestBody);
     },
     // 其他接口…………

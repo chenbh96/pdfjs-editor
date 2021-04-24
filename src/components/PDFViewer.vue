@@ -208,7 +208,7 @@ export default {
       });
     },
 
-    save() {
+    save(title, action) {
       var ret = [];
 
       var pages = new Set();
@@ -248,22 +248,20 @@ export default {
             var requestBody = {
               "fid": parseInt(self.$route.query.fid),
               "data": ret,
-              "action": "Edit",
-              // [
-              //     {
-              //         "page": 0,
-              //         "base64": "",
-              //         "action": "add"
-              //     }
-              // ],
+              "action": action,
               "userid": self.$route.query.userid,
-              "title": "",
+              "title": title,
               "version": "",
               "uid": 0
             };
             console.log(requestBody);
             self.$api.pdf.save(requestBody).then(res => {
-              console.log(res);
+              console.log(res.data);
+              var dat=res.data;
+              if(dat.data&&dat.data.fid) {
+                localStorage.fm_fid = dat.data.fid;
+              }
+              self.modals.save = false;
             });
           }
         }

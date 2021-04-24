@@ -34,12 +34,16 @@ export default {
     var _this = this;
     if (params.fid && params.userid) {
       this.$api.pdf.get({
-        fid: params.fid, 
+        fid: params.fid,
         userid: params.userid,
         dtype: params.dtype ? params.dtype : 0
       }).then(res=>{
         if (res.data.data) {
           _this.url = res.data.data.pdfUrl;
+          console.log(res.data.data);
+          if (res.data.data.title) {
+            localStorage.fm_title = res.data.data.title;
+          }
         }
       });
     } else if(params.code){
@@ -49,11 +53,16 @@ export default {
       }).then(res=>{
         if (res.data.data) {
           _this.url = res.data.data.pdfUrl;
+          console.log(res.data.data);
+          if (res.data.data.title) {
+            localStorage.fm_title = res.data.data.title;
+          }
         }
       });
     } else {
       alert("请求参数错误，没有找到对应文件");
     }
+    localStorage.removeItem('fm_fid');
   },
 
   data() {
