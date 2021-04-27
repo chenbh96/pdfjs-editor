@@ -86,7 +86,6 @@ import PDFPaginator from './PDFPaginator';
 import PDFPreview from './PDFPreview';
 import PDFZoom from './PDFZoom';
 import PDFEdit from './PDFEdit';
-import PDFAction from './PDFAction';
 import UserInfo from './UserInfo';
 import ModalShare from './modals/ModalShare';
 import ModalSave from './modals/ModalSave';
@@ -109,7 +108,6 @@ export default {
     PDFZoom,
     PreviewIcon,
     PDFEdit,
-    PDFAction,
     UserInfo,
     ModalShare,
     ModalSave,
