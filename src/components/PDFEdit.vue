@@ -5,7 +5,8 @@
       @mouseup.prevent.stop="togglePen($event)" 
       @touchend.prevent.stop="togglePen($event)" 
       class="icon">
-        <img src="@/assets/icons/pen.png"/>
+        <img v-if="selected == 'pen'" src="@/assets/icons-blue/pen.png"/>
+        <img v-else src="@/assets/icons/pen.png"/>
       </a>
     </el-tooltip>
     <div v-show="pen.show" class="screen" @mouseup.prevent.stop="togglePen($event)"></div>
@@ -20,7 +21,8 @@
       @touchend.prevent.stop="toggleHighlighter($event)" 
       class="icon"
       ><!-- <HighlighterIcon /> -->
-        <img src="@/assets/icons/highlighter.png"/>
+        <img v-if="selected == 'highlighter'" src="@/assets/icons-blue/highlighter.png"/>
+        <img v-else src="@/assets/icons/highlighter.png"/>
       </a>
     </el-tooltip>
     <el-tooltip effect="dark" content="Undo" :open-delay=300 placement="bottom-start">
@@ -40,6 +42,7 @@
 import common from "@/utils/common.js";
 import PenIcon from '../assets/icon-pen.svg';
 import HighlighterIcon from '../assets/icon-highlighter.svg';
+import {TOOLS} from '@/utils/constants.js';
 
 export default {
   name: 'PDFEdit',
@@ -149,6 +152,14 @@ export default {
     clickRedo() {
       this.$emit("redo");
     },
+
+    mouseup() {
+      
+    },
+
+    mousedown() {
+
+    },
   },
 }
 </script>
@@ -190,8 +201,5 @@ export default {
 .pen-range-span {
   min-width: 40px;
   display: inline-block;
-}
-.selected {
-  background-color: yellow !important;
 }
 </style>
