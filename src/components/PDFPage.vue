@@ -1,6 +1,7 @@
 <template>
   <div style="position: relative;">
-    <canvas :id="getId" 
+    <canvas :id="getId"
+      class="box-shadow"
       v-visible="drawPage"
       v-bind="canvasAttrs">  
     </canvas>
@@ -114,7 +115,7 @@ export default {
         width,
         height,
         style,
-        class: 'pdf-page box-shadow',
+        class: 'pdf-page',
       };
     },
 

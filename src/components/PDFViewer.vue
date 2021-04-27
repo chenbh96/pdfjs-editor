@@ -1,8 +1,8 @@
 <template>
   <div class="pdf-viewer">
-    <header class="pdf-viewer__header">
+    <header class="pdf-viewer__header box-shadow">
       <div class="menu-left-section">
-        <el-tooltip class="item" effect="dark" content="Preview" :open-delay=1000 placement="bottom-start">
+        <el-tooltip class="item" effect="dark" content="Preview" :open-delay=300 placement="bottom-start">
           <a @click.prevent.stop="togglePreview" class="icon">
             <img src="@/assets/icons/preview.png"/>
           </a>
@@ -25,18 +25,14 @@
         :selected="selectedTool"
         @update-selected="updateSelectedTool"
         @update-config="updateToolConfig"
-        />
-
-
-      <PDFAction
         @undo="undo"
         @redo="redo"
-        @save="modalSave"
         />
 
       <UserInfo
         class="menu-right-section"
-        @help="help"
+        @save="modalSave"
+        @share="modalShare"
       />
 
       <slot name="header"></slot>
@@ -71,7 +67,7 @@
 
     <div class="modal-shadow" v-if="showModal">
       <ModalShare class="modal" 
-        v-if="modals.help"/>
+        v-if="modals.share"/>
       <ModalSave class="modal" 
         v-if="modals.save" 
         :show="modals.save" 
@@ -94,9 +90,8 @@ import PDFAction from './PDFAction';
 import UserInfo from './UserInfo';
 import ModalShare from './modals/ModalShare';
 import ModalSave from './modals/ModalSave';
-
+import common from '@/utils/common';
 import {A4_WIDTH, A4_HEIGHT} from '@/utils/constants';
-// import common from '@/utils/common';
 
 function floor(value, precision) {
   const multiplier = Math.pow(10, precision || 0);
@@ -137,7 +132,7 @@ export default {
       editData: [], // 编辑步骤存放
       editLock: false, // 编辑锁，编辑时为true
       modals: { // 所有弹窗判断
-        help: false,
+        share: false,
         save: false,
       },
       lastActionTimer: null, // 最后操作倒计时
@@ -269,23 +264,21 @@ export default {
 
     },
 
+    ///////////////// 弹窗 /////////////////
     modalSave() {
       this.modals.save = true;
     },
 
     closeSave() {
       this.modals.save = false;
-      console.log(this.modals);
     },
 
-    //////////////////// 用户菜单 ////////////////////
-
-    help() {
-      this.modals.help = true;
+    modalShare() {
+      this.modals.share = true;
     },
 
-    doNothing() {
-      return;
+    closeShare() {
+      this.modals.share = false;
     }
   },
 
@@ -297,7 +290,9 @@ export default {
       clearTimeout(this.lastActionTimer);
       var _this = this;
       this.lastActionTimer = setTimeout(function(){
-        _this.modals.save = true;
+        if (!common.isEmpty(_this.editData)) {
+          _this.modals.save = true;
+        }
       }, 10000);
     }
   },

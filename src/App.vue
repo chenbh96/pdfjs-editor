@@ -137,7 +137,7 @@ a.icon img {
 }
 
 .box-shadow {
-  box-shadow: 0px 2px 21px 0px rgba(116, 116, 116, 0.15);
+  box-shadow: 0px 2px 8px 0px rgba(116, 116, 116, 0.4);
 }
 .overflow-hidden {
   overflow: hidden;
@@ -151,5 +151,9 @@ a.icon img {
     margin: 0;
     padding: 0;
   }
+}
+
+.el-tooltip:focus {
+  outline: 0 !important;
 }
 </style>

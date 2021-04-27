@@ -1,6 +1,6 @@
 <template>
   <div class="pdf-edit">
-    <el-tooltip class="item" effect="dark" content="Pen" :open-delay=1000 placement="bottom-start">
+    <el-tooltip effect="dark" content="Pen" :open-delay=300 placement="bottom-start">
       <a id="pen" 
       @mouseup.prevent.stop="togglePen($event)" 
       @touchend.prevent.stop="togglePen($event)" 
@@ -14,13 +14,23 @@
       <input type="range" class="pen-line-range" @input="changePenSize($event.target.value)" min="1" max="72" value="1">
       <span class="pen-range-span"><label class="pen-range-value">{{pen.size}}</label>Px</span>
     </div>
-    <el-tooltip class="item" effect="dark" content="Highlighter" :open-delay=1000 placement="bottom-start">
+    <el-tooltip effect="dark" content="Highlighter" :open-delay=300 placement="bottom-start">
       <a id="highlighter" 
       @mouseup.prevent.stop="toggleHighlighter($event)"
       @touchend.prevent.stop="toggleHighlighter($event)" 
       class="icon"
       ><!-- <HighlighterIcon /> -->
         <img src="@/assets/icons/highlighter.png"/>
+      </a>
+    </el-tooltip>
+    <el-tooltip effect="dark" content="Undo" :open-delay=300 placement="bottom-start">
+      <a id="undo" @click.prevent.stop="clickUndo()" class="icon">
+        <img src="@/assets/icons/undo.png"/>
+      </a>
+    </el-tooltip>
+    <el-tooltip effect="dark" content="Redo" :open-delay=300 placement="bottom-start">
+      <a id="redo" @click.prevent.stop="clickRedo()" class="icon">
+        <img src="@/assets/icons/redo.png"/>
       </a>
     </el-tooltip>
   </div>
@@ -130,6 +140,14 @@ export default {
         selected.classList.remove('selected');
         this.$emit("update-selected", null);
       }
+    },
+    
+    clickUndo() {
+      this.$emit("undo");
+    },
+
+    clickRedo() {
+      this.$emit("redo");
     },
   },
 }

@@ -4,13 +4,10 @@
     <img id="undo" class="avatar" src="https://wx.qlogo.cn/mmopen/vi_32/DYAIOgq83eolRXosbFgtTPsE65nKTCPzYsZ1amVkb1TsSIj9kaicoOgJzSTeCHjaX5t6AMnN31Zibmib6kY8M8PFw/132"/>
     <div class="shadow" v-if="showMenu" @click.stop.prevent="clickShadow"></div>
     <div class="user-menu" v-if="showMenu">
-      <div class="menu-option"><ProfileIcon style="margin-right: 10px;"/>Your profile</div>
+      <div class="menu-option"><img src="@/assets/icons/my.png" />Your profile</div>
       <div class="divider"/>
-      <div class="menu-option"><UploadIcon style="margin-right: 10px;"/>Upload</div>
-      <div class="menu-option"><ShareIcon style="margin-right: 10px;"/>Share</div>
-      <div class="divider"/>
-      <div class="menu-option" @click.stop.prevent="help"><HelpIcon style="margin-right: 10px;"/>Help</div>
-      <div class="menu-option"><SettingIcon style="margin-right: 10px;"/>Setting</div>
+      <div class="menu-option" @click.stop.prevent="save"><img src="@/assets/icons/save.png" />Save</div>
+      <div class="menu-option" @click.stop.prevent="share"><img src="@/assets/icons/share.png" />Share</div>
       <div class="divider"/>
       <div class="menu-option"><QuitIcon style="margin-right: 10px;"/>Quit</div>
     </div>
@@ -57,14 +54,20 @@ export default {
       this.showMenu = false;
     },
 
-    help() {
-      this.$emit("help");
+    save() {
+      this.$emit("save");
+      this.showMenu = false;
+    },
+
+    share() {
+      this.$emit("share");
+      this.showMenu = false;
     },
   },
 }
 </script>
 
-<style>
+<style scoped>
 .user-info {
   padding: 0 1em;
   height: 100%;
@@ -78,9 +81,8 @@ export default {
 .avatar {
   display: block;
   border-radius: 50%;
-  width: 1.75em;
-  height: 1.75em;
-  font-size: 1.5em;
+  width: 32px;
+  height: 32px;
   background-color: rgba(255,255,255,0.1);
 }
 
@@ -125,5 +127,11 @@ export default {
   margin: 6px 0;
   overflow: hidden;
   background-color: #e2e2e2;
+}
+
+.menu-option img {
+  width: 16px;
+  height: 16px;
+  margin-right: 10px;
 }
 </style>
