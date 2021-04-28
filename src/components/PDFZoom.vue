@@ -1,21 +1,21 @@
 <template>
   <div class="pdf-zoom">
-    <el-tooltip class="item" effect="dark" content="Zoom-in" :open-delay=300 placement="bottom-start">
+    <el-tooltip class="item" effect="dark" content="Zoom-in" :open-delay=500 placement="bottom-start">
       <a @click.prevent.stop="zoomIn" class="icon" :disabled="isDisabled">
         <img src="@/assets/icons/zoomin.png"/>
       </a>
     </el-tooltip>
-    <el-tooltip class="item" effect="dark" content="Zoom-out"  :open-delay=300 placement="bottom-start">
+    <el-tooltip class="item" effect="dark" content="Zoom-out"  :open-delay=500 placement="bottom-start">
       <a @click.prevent.stop="zoomOut" class="icon" :disabled="isDisabled">
         <img src="@/assets/icons/zoomout.png"/>
       </a>
     </el-tooltip>
-    <el-tooltip class="item pc" effect="dark" content="Fit-width"  :open-delay=300 placement="bottom-start">
+    <el-tooltip class="item pc" effect="dark" content="Fit-width"  :open-delay=500 placement="bottom-start">
       <a @click.prevent.stop="fitWidth" class="icon" :disabled="isDisabled">
         <img src="@/assets/icons/cover.png"/>      
       </a>
     </el-tooltip>
-    <el-tooltip class="item pc" effect="dark" content="Fit-auto"  :open-delay=300 placement="bottom-start">
+    <el-tooltip class="item pc" effect="dark" content="Fit-auto"  :open-delay=500 placement="bottom-start">
       <a @click.prevent.stop="fitAuto" class="icon" :disabled="isDisabled">
         <img src="@/assets/icons/contain.png"/>
       </a>

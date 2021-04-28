@@ -1,6 +1,6 @@
 <template>
   <div class="pdf-edit">
-    <el-tooltip effect="dark" content="Pen" :open-delay=300 placement="bottom-start">
+    <el-tooltip effect="dark" content="Pen" :open-delay=500 placement="bottom-start">
       <a id="pen" 
       @mouseup.prevent.stop="togglePen($event)" 
       @touchend.prevent.stop="togglePen($event)" 
@@ -15,7 +15,7 @@
       <input type="range" class="pen-line-range" @input="changePenSize($event.target.value)" min="1" max="72" value="1">
       <span class="pen-range-span"><label class="pen-range-value">{{pen.size}}</label>Px</span>
     </div>
-    <el-tooltip effect="dark" content="Highlighter" :open-delay=300 placement="bottom-start">
+    <el-tooltip effect="dark" content="Highlighter" :open-delay=500 placement="bottom-start">
       <a id="highlighter" 
       @mouseup.prevent.stop="toggleHighlighter($event)"
       @touchend.prevent.stop="toggleHighlighter($event)" 
@@ -25,12 +25,22 @@
         <img v-else src="@/assets/icons/highlighter.png"/>
       </a>
     </el-tooltip>
-    <el-tooltip effect="dark" content="Undo" :open-delay=300 placement="bottom-start">
+    <el-tooltip effect="dark" content="Eraser" :open-delay=500 placement="bottom-start">
+      <a id="eraser" 
+      @mouseup.prevent.stop="toggleEraser($event)"
+      @touchend.prevent.stop="toggleEraser($event)" 
+      class="icon"
+      ><!-- <HighlighterIcon /> -->
+        <img v-if="selected == 'eraser'" src="@/assets/icons-blue/eraser.png"/>
+        <img v-else src="@/assets/icons/eraser.png"/>
+      </a>
+    </el-tooltip>
+    <el-tooltip effect="dark" content="Undo" :open-delay=500 placement="bottom-start">
       <a id="undo" @click.prevent.stop="clickUndo()" class="icon">
         <img src="@/assets/icons/undo.png"/>
       </a>
     </el-tooltip>
-    <el-tooltip effect="dark" content="Redo" :open-delay=300 placement="bottom-start">
+    <el-tooltip effect="dark" content="Redo" :open-delay=500 placement="bottom-start">
       <a id="redo" @click.prevent.stop="clickRedo()" class="icon">
         <img src="@/assets/icons/redo.png"/>
       </a>
@@ -102,7 +112,28 @@ export default {
       this.$emit("update-config", this.pen);
     },
 
-    toggleHighlighter(e, callback) {
+    toggleHighlighter(e, callback = false) {
+      var target = null;
+      if (e.target.tagName.toLowerCase() == 'a') {
+        target = e.target;
+      } else if (e.target.parentNode.tagName.toLowerCase() == 'a') {
+        target = e.target.parentNode;
+      } else {
+        this.highlighter.show = false;
+        return;
+      }
+
+      if (!callback && common.isDoubleClick(this.toggleHighlighter, e)) {
+        this.cancelTool();
+        return;
+      } 
+
+      if (callback) {
+        this.toggleSelected(target);
+      }
+    },
+
+    toggleEraser(e, callback = false) {
       var target = null;
       if (e.target.tagName.toLowerCase() == 'a') {
         target = e.target;
@@ -154,7 +185,7 @@ export default {
     },
 
     mouseup() {
-      
+
     },
 
     mousedown() {

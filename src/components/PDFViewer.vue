@@ -2,7 +2,7 @@
   <div class="pdf-viewer">
     <header class="pdf-viewer__header box-shadow">
       <div class="menu-left-section">
-        <el-tooltip class="item" effect="dark" content="Preview" :open-delay=300 placement="bottom-start">
+        <el-tooltip class="item" effect="dark" content="Preview" :open-delay=500 placement="bottom-start">
           <a @click.prevent.stop="togglePreview" class="icon">
             <img src="@/assets/icons/preview.png"/>
           </a>

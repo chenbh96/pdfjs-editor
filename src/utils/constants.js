@@ -8,5 +8,6 @@ export const SAVE_MODE = {
 };
 export const TOOLS = {
     pen: "pen",
-    highlighter: "highlighter"
+    highlighter: "highlighter",
+    eraser: "eraser",
 };

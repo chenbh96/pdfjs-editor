@@ -27,7 +27,7 @@
 import debug from 'debug';
 const log = debug('app:components/PDFPage');
 
-import {PIXEL_RATIO} from '../utils/constants';
+import {PIXEL_RATIO, TOOLS} from '../utils/constants';
 import visible from '../directives/visible';
 
 function position(event, canvas) {
@@ -196,10 +196,13 @@ export default {
     mouseup(event) {
       if (this.isMouseDown && this.selectedTool && this.toolConfig) {
         switch(this.selectedTool) {
-          case "pen":
+          case TOOLS.pen:
             this.pen(event, "finish");
             break;
-          case "highlighter":
+          case TOOLS.highlighter:
+            this.highlighter(event, "finish");
+            break;
+          case TOOLS.eraser: 
             this.highlighter(event, "finish");
             break;
         }
@@ -216,21 +219,25 @@ export default {
     },
 
     mousemove(event) {
-      if (this.selectedTool && this.isMouseDown) {
-        event.preventDefault();
+      event.preventDefault();
 
-        switch(this.selectedTool) {
-          case "pen":
-            this.pen(event, "draw");
-            break;
-          case "highlighter":
-            this.highlighter(event, "draw");
-            break;
-        }
+      switch(this.selectedTool) {
+        case TOOLS.pen:
+          this.pen(event, "draw");
+          break;
+        case TOOLS.highlighter:
+          this.highlighter(event, "draw");
+          break;
+        case TOOLS.eraser:
+          this.eraser(event, "draw");
+          break;
       }
     },
 
     pen(event, mode="draw") {
+      if (!this.selectedTool || !this.isMouseDown) {
+        return;
+      }
       const cLayer = document.getElementById(this.getId+"-layer");
       const cCtx = cLayer.getContext('2d');
       cCtx.clearRect(0, 0, cLayer.width, cLayer.height);
@@ -265,6 +272,9 @@ export default {
     },
 
     highlighter(event, mode="draw") {
+      if (!this.selectedTool || !this.isMouseDown) {
+        return;
+      }
       // layer层清空
       const cLayer = document.getElementById(this.getId+"-layer");
       const cCtx = cLayer.getContext('2d');
@@ -297,7 +307,50 @@ export default {
         context.lineTo(seg.dx*scale, seg.dy*scale);
       });
       context.stroke();
-    }
+    },
+
+    eraser(event, mode="draw") {
+      const cLayer = document.getElementById(this.getId+"-layer");
+      const cCtx = cLayer.getContext('2d');
+      cCtx.clearRect(0, 0, cLayer.width, cLayer.height);
+
+      var canvas = document.getElementById(this.getId+"-edit");
+      const newX = position(event, canvas).x;
+      const newY = position(event, canvas).y;
+      var scale = this.canvasAttrs.width/this.actualSizeViewport.width*PIXEL_RATIO;
+      cCtx.beginPath();
+      cCtx.lineWidth = 1;
+      cCtx.strokeStyle = "#000";
+      cCtx.arc(newX * scale, newY * scale, 15, 0, 2 * Math.PI);
+      cCtx.stroke();
+
+      if (!this.selectedTool || !this.isMouseDown) {
+        return;
+      }
+
+      this.currentEdit.push({
+        sx: this.x,
+        sy: this.y,
+        dx: newX,
+        dy: newY
+      });
+
+      this.x = newX;
+      this.y = newY;
+
+      var context = canvas.getContext('2d');
+      context.globalCompositeOperation = "destination-out";
+      context.lineWidth = "30";
+      context.lineCap = 'round';
+
+      context.beginPath();
+      this.currentEdit.forEach(seg => {
+        context.moveTo(seg.sx*scale, seg.sy*scale);
+        context.lineTo(seg.dx*scale, seg.dy*scale);
+      });
+      context.stroke();
+      context.globalCompositeOperation = "source-over";
+    },
   },
 
   watch: {
