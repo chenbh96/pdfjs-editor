@@ -31,18 +31,19 @@ import {PIXEL_RATIO, TOOLS} from '../utils/constants';
 import visible from '../directives/visible';
 
 function position(event, canvas) {
-  if (event.offsetX) {
+  if (Number.isInteger(event.offsetX)) {
     return {
       x: event.offsetX,
       y: event.offsetY
     };
-  } else {
+  } else if (event.touches) {
     var rect = canvas.getBoundingClientRect();
     return {
       x: event.touches[0].clientX - rect.left,
       y: event.touches[0].clientY - rect.top
     };
-  }
+  } 
+  console.log(event);
 }
 
 export default {
@@ -317,7 +318,7 @@ export default {
       var canvas = document.getElementById(this.getId+"-edit");
       const newX = position(event, canvas).x;
       const newY = position(event, canvas).y;
-      var scale = this.canvasAttrs.width/this.actualSizeViewport.width*PIXEL_RATIO;
+      var scale = this.canvasAttrs.width/this.actualSizeViewport.width*PIXEL_RATIO; 
       cCtx.beginPath();
       cCtx.lineWidth = 1;
       cCtx.strokeStyle = "#000";
@@ -362,6 +363,13 @@ export default {
 
     isElementFocused(isElementFocused) {
       if (isElementFocused) this.focusPage();
+    },
+
+    // 清除画笔层
+    selectedTool() {
+      const cLayer = document.getElementById(this.getId+"-layer");
+      const cCtx = cLayer.getContext('2d');
+      cCtx.clearRect(0, 0, cLayer.width, cLayer.height);
     },
   },
 
