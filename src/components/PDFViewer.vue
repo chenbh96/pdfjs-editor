@@ -58,7 +58,7 @@
         <PDFDocument
           class="pdf-viewer__document"
           :class="{ 'preview-enabled': isPreviewEnabled }"
-          v-bind="{pages, scale, optimalScale, fit, currentPage, pageCount, isPreviewEnabled, selectedTool, toolConfig}"
+          v-bind="{pages, scale, optimalScale, fit, currentPage, pageCount, isPreviewEnabled, selectedTool, toolConfig, perPageData}"
           @scale-change="updateScale"
           @edit-push="edit"
           />
@@ -134,6 +134,10 @@ export default {
         save: false,
       },
       lastActionTimer: null, // 最后操作倒计时
+      perPageData: {
+        0: "page 0",
+        1: "page 1"
+      },
     };
   },
 

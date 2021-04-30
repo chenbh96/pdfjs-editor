@@ -8,13 +8,14 @@
       v-for="(page, index) in pages"
       :key="page.pageNumber"
       v-bind="{page, clientHeight, scrollTop, focusedPage, enablePageJump}"
-      v-slot="{isPageFocused, isElementFocused}"
+      v-slot="{isPageFocused, isElementFocused, perPageData}"
       @page-jump="onPageJump"
       >
       <div
         class="scrolling-page"
         >
-        <slot v-bind="{page, isPageFocused, isElementFocused, index}"></slot>
+        <slot v-bind="{page, isPageFocused, isElementFocused, index}"
+        ></slot>
       </div>
     </ScrollingPage>
 
@@ -53,6 +54,9 @@ export default {
     isParentVisible: {
       default: true,
     },
+    perPageData: {
+      default: false,
+    }
   },
 
   data() {

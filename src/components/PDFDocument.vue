@@ -10,6 +10,7 @@
     >
     <PDFPage
       v-bind="{scale, optimalScale, page, isPageFocused, isElementFocused, index, selectedTool, toolConfig}"
+      :pageData="perPageData ? perPageData[index] : 0"
       @page-rendered="onPageRendered"
       @page-errored="onPageErrored"
       @page-focus="onPageFocused"
@@ -65,6 +66,9 @@ export default {
       default: false,
     },
     toolConfig: {
+      default: false,
+    },
+    perPageData: {
       default: false,
     }
   },

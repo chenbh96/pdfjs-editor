@@ -78,6 +78,9 @@ export default {
     },
     toolConfig: {
       default: false,
+    },
+    pageData: {
+      default: "DEFAULT",
     }
   },
 
@@ -382,6 +385,8 @@ export default {
 
   mounted() {
     log(`Page ${this.pageNumber} mounted`);
+    console.log("--------------------------");
+    console.log(this.pageData);
   },
 
   beforeDestroy() {
