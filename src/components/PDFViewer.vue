@@ -134,8 +134,8 @@ export default {
         save: false,
       },
       lastActionTimer: null, // 最后操作倒计时
-      perPageData: {
-      },
+      perPageData: {},
+      redoData: [],
     };
   },
 
@@ -199,19 +199,23 @@ export default {
         tempData[value.page] = [value];
       }
       this.perPageData = tempData;
+      this.redoData = [];
     },
 
     undo() {
       var lastEdit = this.editData.pop();
       if (lastEdit) {
         this.perPageData[lastEdit.page].pop();
+        this.redoData.push(lastEdit);
       }
     },
 
     redo() {
-      this.$api.pdf.editSignal(566, 1570).then(res=>{
-        console.log(res);
-      });
+      if (this.redoData.length) {
+        var prevEdit = this.redoData.pop();
+        this.perPageData[prevEdit.page].push(prevEdit);
+        this.editData.push(prevEdit);
+      }
     },
 
     save(title, action) {
