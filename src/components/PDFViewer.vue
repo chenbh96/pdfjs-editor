@@ -135,8 +135,6 @@ export default {
       },
       lastActionTimer: null, // 最后操作倒计时
       perPageData: {
-        0: "page 0",
-        1: "page 1"
       },
     };
   },
@@ -189,14 +187,25 @@ export default {
     },
 
     updateToolConfig(value) {
-      this.toolConfig = value;
+      this.toolConfig = JSON.parse(JSON.stringify(value));
     },
 
     edit(value) {
       this.editData.push(value);
+      var tempData = JSON.parse(JSON.stringify(this.perPageData));
+      if (this.perPageData[value.page]) {
+        tempData[value.page].push(value);
+      } else {
+        tempData[value.page] = [value];
+      }
+      this.perPageData = tempData;
     },
 
     undo() {
+      var lastEdit = this.editData.pop();
+      if (lastEdit) {
+        this.perPageData[lastEdit.page].pop();
+      }
     },
 
     redo() {
@@ -288,6 +297,8 @@ export default {
     url() {
       this.currentPage = undefined;
     },
+    
+    // 定时保存
     editData() {
       clearTimeout(this.lastActionTimer);
       var _this = this;

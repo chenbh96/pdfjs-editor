@@ -42,11 +42,9 @@ var common = {
         // compare first click to this click and see if they occurred within double click threshold
         if (((new Date().getTime()) - this.clickTimestamp) < 200 && this.clickMethod == method) {
             // double click occurred
-            console.log("Double");
             clearTimeout(this.clickTimeout);
             return true;
         }
-        console.log("single");
         this.clickTimestamp = new Date().getTime();
         this.clickMethod = method;
         this.clickTimeout = setTimeout(function(){

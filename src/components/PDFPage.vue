@@ -30,22 +30,6 @@ const log = debug('app:components/PDFPage');
 import {PIXEL_RATIO, TOOLS} from '../utils/constants';
 import visible from '../directives/visible';
 
-function position(event, canvas) {
-  if (Number.isInteger(event.offsetX)) {
-    return {
-      x: event.offsetX,
-      y: event.offsetY
-    };
-  } else if (event.touches) {
-    var rect = canvas.getBoundingClientRect();
-    return {
-      x: event.touches[0].clientX - rect.left,
-      y: event.touches[0].clientY - rect.top
-    };
-  } 
-  console.log(event);
-}
-
 export default {
   name: 'PDFPage',
 
@@ -80,7 +64,6 @@ export default {
       default: false,
     },
     pageData: {
-      default: "DEFAULT",
     }
   },
 
@@ -130,6 +113,16 @@ export default {
     getId() {
       return "canvas-"+this.index;
     },
+
+    // edit层canvas
+    editCanvas() {
+      return document.getElementById(this.getId+"-edit");
+    },
+
+    // layer层canvas
+    layerCanvas() {
+      return document.getElementById(this.getId+"-layer");
+    },
   },
 
   methods: {
@@ -140,7 +133,6 @@ export default {
     },
 
     drawPage() {
-      this.zoomScale = this.canvasAttrs.width/this.actualSizeViewport.width*PIXEL_RATIO;
       if (this.renderTask) return;
 
       const {viewport} = this;
@@ -207,51 +199,80 @@ export default {
             this.highlighter(event, "finish");
             break;
           case TOOLS.eraser: 
-            this.highlighter(event, "finish");
+            this.eraser(event, "finish");
             break;
         }
-        this.$emit("edit-push", {
-          page: this.index,
-          tool: this.selectedTool,
-          scale: this.zoomScale,
-          toolConfig: this.toolConfig,
-          content: this.currentEdit
-        });
+        if (this.currentEdit.length) {
+          this.$emit("edit-push", {
+            page: this.index,
+            tool: this.selectedTool,
+            baseCanvasWidth: this.canvasAttrs.width,
+            baseViewWidth: this.actualSizeViewport.width,
+            toolConfig: this.toolConfig,
+            content: this.currentEdit
+          });
+        }
       }
       this.currentEdit = [];
       this.isMouseDown = false;
     },
 
     mousemove(event) {
-      event.preventDefault();
-
       switch(this.selectedTool) {
         case TOOLS.pen:
+          // 判断是否选中工具并且鼠标正在点击
+          if (!this.selectedTool || !this.isMouseDown) {
+            return;
+          }
+          event.preventDefault(); // 取消移动端拖拽滚动页面
           this.pen(event, "draw");
           break;
         case TOOLS.highlighter:
+          if (!this.selectedTool || !this.isMouseDown) {
+            return;
+          }
+          event.preventDefault(); 
           this.highlighter(event, "draw");
           break;
         case TOOLS.eraser:
+          if (!this.selectedTool || !this.isMouseDown) {
+            return;
+          }
+          event.preventDefault();
           this.eraser(event, "draw");
           break;
       }
     },
 
-    pen(event, mode="draw") {
-      if (!this.selectedTool || !this.isMouseDown) {
-        return;
+    position(event, canvas) {
+      if (Number.isInteger(event.offsetX)) {
+        return {
+          x: event.offsetX,
+          y: event.offsetY
+        };
+      } else if (event.touches[0]) {
+        var rect = canvas.getBoundingClientRect();
+        return {
+          x: event.touches[0].clientX - rect.left,
+          y: event.touches[0].clientY - rect.top
+        };
       }
-      const cLayer = document.getElementById(this.getId+"-layer");
-      const cCtx = cLayer.getContext('2d');
-      cCtx.clearRect(0, 0, cLayer.width, cLayer.height);
+      return {
+        x: this.x, 
+        y: this.y
+      };
+    },
 
-      var scale = this.canvasAttrs.width/this.actualSizeViewport.width*PIXEL_RATIO;
-      var canvas = document.getElementById(this.getId+"-edit");
+    pen(event, mode="draw") {
+      var layerCanvas = this.layerCanvas;
+      const cCtx = layerCanvas.getContext('2d');
+      cCtx.clearRect(0, 0, layerCanvas.width, layerCanvas.height);
+
+      var canvas = this.editCanvas;
       if (mode == "draw") {
-        canvas = cLayer;
-        const newX = position(event, canvas).x;
-        const newY = position(event, canvas).y;
+        canvas = this.layerCanvas;
+        const newX = this.position(event, canvas).x;
+        const newY = this.position(event, canvas).y;
         this.currentEdit.push({
           sx: this.x,
           sy: this.y,
@@ -261,35 +282,20 @@ export default {
 
         this.x = newX;
         this.y = newY;
+        this.renderEdit(canvas, this.selectedTool, this.toolConfig, this.actualSizeViewport.width, this.currentEdit);
       }
-      var context = canvas.getContext('2d');
-      context.strokeStyle = this.toolConfig.color;
-      context.lineWidth = this.toolConfig.size;
-      context.lineCap = 'round';
-
-      context.beginPath();
-      this.currentEdit.forEach(seg => {
-        context.moveTo(seg.sx*scale, seg.sy*scale);
-        context.lineTo(seg.dx*scale, seg.dy*scale);
-      });
-      context.stroke();
     },
 
     highlighter(event, mode="draw") {
-      if (!this.selectedTool || !this.isMouseDown) {
-        return;
-      }
-      // layer层清空
-      const cLayer = document.getElementById(this.getId+"-layer");
-      const cCtx = cLayer.getContext('2d');
-      cCtx.clearRect(0, 0, cLayer.width, cLayer.height);
+      var layerCanvas = this.layerCanvas;
+      const cCtx = layerCanvas.getContext('2d');
+      cCtx.clearRect(0, 0, layerCanvas.width, layerCanvas.height);
 
-      var scale = this.canvasAttrs.width/this.actualSizeViewport.width*PIXEL_RATIO;
       var canvas = document.getElementById(this.getId+"-edit");
       if (mode == "draw") {
-        canvas = cLayer;
-        const newX = position(event, canvas).x;
-        const newY = position(event, canvas).y;
+        canvas = layerCanvas;
+        const newX = this.position(event, canvas).x;
+        const newY = this.position(event, canvas).y;
         this.currentEdit.push({
           sx: this.x,
           sy: this.y,
@@ -299,28 +305,18 @@ export default {
 
         this.x = newX;
         this.y = newY;
+        this.renderEdit(canvas, this.selectedTool, this.toolConfig, this.actualSizeViewport.width, this.currentEdit);
       }
-      var context = canvas.getContext('2d');
-      context.strokeStyle = "rgba(0,110,255, 0.3)";
-      context.lineWidth=30;
-      context.lineCap = 'round';
-
-      context.beginPath();
-      this.currentEdit.forEach(seg => {
-        context.moveTo(seg.sx*scale, seg.sy*scale);
-        context.lineTo(seg.dx*scale, seg.dy*scale);
-      });
-      context.stroke();
     },
 
     eraser(event, mode="draw") {
-      const cLayer = document.getElementById(this.getId+"-layer");
-      const cCtx = cLayer.getContext('2d');
-      cCtx.clearRect(0, 0, cLayer.width, cLayer.height);
+      var layerCanvas = this.layerCanvas;
+      const cCtx = layerCanvas.getContext('2d');
+      cCtx.clearRect(0, 0, layerCanvas.width, layerCanvas.height);
 
-      var canvas = document.getElementById(this.getId+"-edit");
-      const newX = position(event, canvas).x;
-      const newY = position(event, canvas).y;
+      var canvas = this.editCanvas;
+      const newX = this.position(event, canvas).x;
+      const newY = this.position(event, canvas).y;
       var scale = this.canvasAttrs.width/this.actualSizeViewport.width*PIXEL_RATIO; 
       cCtx.beginPath();
       cCtx.lineWidth = 1;
@@ -332,6 +328,7 @@ export default {
         return;
       }
 
+      event.preventDefault();
       this.currentEdit.push({
         sx: this.x,
         sy: this.y,
@@ -342,18 +339,60 @@ export default {
       this.x = newX;
       this.y = newY;
 
-      var context = canvas.getContext('2d');
-      context.globalCompositeOperation = "destination-out";
-      context.lineWidth = "30";
-      context.lineCap = 'round';
+      this.renderEdit(canvas, this.selectedTool, this.toolConfig, this.actualSizeViewport.width, this.currentEdit);
+    },
 
-      context.beginPath();
-      this.currentEdit.forEach(seg => {
-        context.moveTo(seg.sx*scale, seg.sy*scale);
-        context.lineTo(seg.dx*scale, seg.dy*scale);
-      });
-      context.stroke();
-      context.globalCompositeOperation = "source-over";
+    /**
+     * 渲染编辑内容
+     * @author   Liuxy
+     * @datetime 2021-05-06T11:00:24+0800
+     * @param    canvas 被操作的canvas
+     * @param    scale  缩放比例
+     */
+    renderEdit(canvas, tool, toolConfig, baseViewWidth, editContent) {
+      var context = canvas.getContext('2d');
+      // 缩放比例：canvas.width / canvas显示宽度 * PIXEL_RATIO
+      // !!! 换机器同步可能出问题 !!!
+      var scale = this.canvasAttrs.width / baseViewWidth * PIXEL_RATIO;
+      switch(tool) {
+        case TOOLS.pen: 
+          context.strokeStyle = toolConfig.color;
+          context.lineWidth = toolConfig.size;
+          context.lineCap = 'round';
+          context.beginPath();
+          editContent.forEach(seg => {
+            context.moveTo(seg.sx*scale, seg.sy*scale);
+            context.lineTo(seg.dx*scale, seg.dy*scale);
+          });
+          context.stroke();
+          break;
+        case TOOLS.highlighter:
+          context.strokeStyle = "rgba(0,110,255, 0.3)";
+          context.lineWidth= 30;
+          context.lineCap = 'round';
+
+          context.beginPath();
+          editContent.forEach(seg => {
+            context.moveTo(seg.sx*scale, seg.sy*scale);
+            context.lineTo(seg.dx*scale, seg.dy*scale);
+          });
+          context.stroke();
+          break;
+        case TOOLS.eraser:
+          context.beginPath();
+          context.strokeStyle = "#000";
+          context.globalCompositeOperation = "destination-out";
+          context.lineWidth = "30";
+          context.lineCap = 'round';
+
+          editContent.forEach(seg => {
+            context.moveTo(seg.sx*scale, seg.sy*scale);
+            context.lineTo(seg.dx*scale, seg.dy*scale);
+          });
+          context.stroke();
+          context.globalCompositeOperation = "source-over";
+          break;
+      }
     },
   },
 
@@ -374,6 +413,34 @@ export default {
       const cCtx = cLayer.getContext('2d');
       cCtx.clearRect(0, 0, cLayer.width, cLayer.height);
     },
+
+    /**
+     * 监听当前页编辑数据
+     * @author   Liuxy
+     * @datetime 2021-05-04T16:37:04+0800
+     * @param    String                 newString
+     * @param    String                 oldString
+     */
+    pageData(newString, oldString) {
+      var newValue = "", oldValue = "";
+      if (newString) {
+        var newValue = JSON.parse(newString);
+      }
+      if (oldString) {
+        var oldValue = JSON.parse(oldString);
+      }
+      if (newValue.length > oldValue.length) { // 新增
+        var lastEdit = newValue[newValue.length-1];
+        this.renderEdit(this.editCanvas, lastEdit.tool, lastEdit.toolConfig, lastEdit.baseViewWidth, lastEdit.content);
+      } else { // 撤回或原地修改需要重新render canvas
+        var canvas = this.editCanvas;
+        var context = canvas.getContext('2d');
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        newValue.forEach((editItem) => {
+          this.renderEdit(this.editCanvas, editItem.tool, editItem.toolConfig, editItem.baseViewWidth, editItem.content);
+        });
+      }
+    }
   },
 
   created() {
@@ -385,8 +452,6 @@ export default {
 
   mounted() {
     log(`Page ${this.pageNumber} mounted`);
-    console.log("--------------------------");
-    console.log(this.pageData);
   },
 
   beforeDestroy() {

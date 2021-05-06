@@ -78,6 +78,10 @@ export default {
         color: "rgba(255,255,0, 1)",
         size: 10,
       },
+      eraser: {
+        show: false,
+        size: 10,
+      },
     }
   },
 
@@ -155,7 +159,6 @@ export default {
     },
 
     toggleSelected(target) {
-      console.log(target);
       if (target == null) {
         return true;
       } else {
@@ -182,14 +185,6 @@ export default {
 
     clickRedo() {
       this.$emit("redo");
-    },
-
-    mouseup() {
-
-    },
-
-    mousedown() {
-
     },
   },
 }
