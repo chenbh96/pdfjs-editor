@@ -10,7 +10,7 @@ var common = {
      * @return   {Boolean}                      [description]
      */
     isEmpty : function(value) {
-        return value === "" || value == null || value == undefined || value == [];
+        return value === "" || value == null || value == undefined || value == [] || value.length == 0;
     },
     /**
      * 正式环境初始url为空 测试环境提供测试文件url

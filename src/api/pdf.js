@@ -1,5 +1,5 @@
 /**
- * article模块接口列表
+ * pdf相关接口
  */
 
 import base from '@/utils/base'; // 导入接口域名列表

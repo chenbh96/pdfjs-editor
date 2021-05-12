@@ -44,9 +44,6 @@ export default {
           if (res.data.data.title) {
             localStorage.fm_title = res.data.data.title;
           }
-          if (res.data.data.user) {
-            localStorage.fm_user =  JSON.stringify(res.data.data.user);
-          }
         }
       });
     } else if(params.code){
@@ -59,9 +56,6 @@ export default {
           console.log(res.data.data);
           if (res.data.data.title) {
             localStorage.fm_title = res.data.data.title;
-          }
-          if (res.data.data.user) {
-            localStorage.fm_user =  JSON.stringify(res.data.data.user);
           }
         }
       });
@@ -97,7 +91,7 @@ export default {
 body {
   margin: 0;
   padding: 0;
-  background-color: #F0F2F4;
+  background-color: rgb(239, 239, 242);
 }
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;

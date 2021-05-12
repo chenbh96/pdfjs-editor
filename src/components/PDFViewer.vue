@@ -32,7 +32,7 @@
       <UserInfo
         class="menu-right-section"
         @save="modalSave"
-        @share="modalShare"
+        @share="modalRemark"
       />
 
       <slot name="header"></slot>
@@ -67,7 +67,12 @@
 
     <div class="modal-shadow" v-if="showModal">
       <ModalShare class="modal" 
-        v-if="modals.share"/>
+        v-if="modals.share"
+        @close="closeShare"/>
+      <ModalRemark class="modal"
+        v-if="modals.remark"
+        @close="closeRemark"
+        @save="saveRemark" />
       <ModalSave class="modal" 
         v-if="modals.save" 
         :show="modals.save" 
@@ -89,6 +94,7 @@ import PDFEdit from './PDFEdit';
 import UserInfo from './UserInfo';
 import ModalShare from './modals/ModalShare';
 import ModalSave from './modals/ModalSave';
+import ModalRemark from './modals/ModalRemark';
 import common from '@/utils/common';
 import {A4_WIDTH, A4_HEIGHT} from '@/utils/constants';
 
@@ -111,6 +117,7 @@ export default {
     UserInfo,
     ModalShare,
     ModalSave,
+    ModalRemark,
   },
 
   props: {
@@ -132,6 +139,7 @@ export default {
       modals: { // 所有弹窗判断
         share: false,
         save: false,
+        remark: false,
       },
       lastActionTimer: null, // 最后操作倒计时
       perPageData: {},
@@ -288,25 +296,35 @@ export default {
       this.modals.save = false;
     },
 
-    modalShare() {
-      this.modals.share = true;
-    },
-
     closeShare() {
       this.modals.share = false;
-    }
+    },
+
+    modalRemark() {
+      this.modals.remark = true;
+    },
+
+    closeRemark() {
+      this.modals.remark = false;
+    },
+
+    saveRemark() {
+      this.modals.remark = false;
+      this.modals.share = true;
+    },
   },
 
   watch: {
     url() {
       this.currentPage = undefined;
     },
+    
     // 定时保存
     editData() {
       clearTimeout(this.lastActionTimer);
       var _this = this;
       this.lastActionTimer = setTimeout(function(){
-        if (_this.editData.length>0) {
+        if (!common.isEmpty(_this.editData)) {
           _this.modals.save = true;
         }
       }, 10000);

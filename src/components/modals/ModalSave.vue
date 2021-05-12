@@ -9,16 +9,23 @@
         <el-form-item label="文件名 (不包括后缀名)">
           <el-input v-model="name"></el-input>
         </el-form-item>
-        <el-form-item label="Tag">
+        <el-form-item label="新文件名">
           <el-input  v-model="tag"></el-input>
         </el-form-item>
       </el-form>
     </div>
     <div class="modal-footer">
-      <el-row style="height: 100%; display: flex; align-items: center; justify-content: flex-end;">
-        <el-button size="mini" style="width: 80px;" @click="save" round>保存</el-button>
-        <el-button type="primary" size="mini" style="width: 80px;" @click="saveNew" round>另存为</el-button>
-      </el-row>
+      <div style="height: 100%; display: flex; align-items: center; justify-content: space-between;">
+        <div style="font-size: 12px;">
+          <b style="color: #999">保存</b> <span style="color:#aaa">将同步更新当前这份教材</span>
+          <br>
+          <b style="color: #999">另存为</b> <span style="color:#aaa">将新建一份教材</span>
+        </div>
+        <div>
+          <el-button  style="width: 80px;" @click="save">保存</el-button>
+          <el-button type="primary"  style="width: 80px;" @click="saveNew">另存为</el-button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -85,8 +92,8 @@ export default {
 
 <style scoped>
 .modal-save-template {
-  width: 300px; 
-  height: 300px; 
+  width: 450px; 
+  height: 350px; 
   border-radius: 6px;
   background-color: #fff;
   text-align: left;
@@ -96,7 +103,7 @@ export default {
 
 .modal-header {
   font-size: 15px;
-  padding: 5px 10px;
+  padding: 10px 15px;
   border-bottom: 1px solid #ddd;
 }
 
@@ -108,7 +115,7 @@ export default {
 
 .modal-footer {
   border-top: 1px solid #ddd;
-  padding: 10px;
+  padding: 10px 15px;
 }
 
 

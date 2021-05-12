@@ -235,6 +235,17 @@ export default {
           this.highlighter(event, "draw");
           break;
         case TOOLS.eraser:
+          var layerCanvas = this.layerCanvas;
+          const cCtx = layerCanvas.getContext('2d');
+          cCtx.clearRect(0, 0, layerCanvas.width, layerCanvas.height);
+          var scale = this.canvasAttrs.width/this.actualSizeViewport.width*PIXEL_RATIO;
+          const newX = this.position(event, layerCanvas).x;
+          const newY = this.position(event, layerCanvas).y;
+          cCtx.beginPath();
+          cCtx.lineWidth = 1;
+          cCtx.strokeStyle = "#000";
+          cCtx.arc(newX * scale, newY * scale, 15, 0, 2 * Math.PI);
+          cCtx.stroke();
           if (!this.selectedTool || !this.isMouseDown) {
             return;
           }
@@ -310,25 +321,8 @@ export default {
     },
 
     eraser(event, mode="draw") {
-      var layerCanvas = this.layerCanvas;
-      const cCtx = layerCanvas.getContext('2d');
-      cCtx.clearRect(0, 0, layerCanvas.width, layerCanvas.height);
-
-      var canvas = this.editCanvas;
-      const newX = this.position(event, canvas).x;
-      const newY = this.position(event, canvas).y;
-      var scale = this.canvasAttrs.width/this.actualSizeViewport.width*PIXEL_RATIO; 
-      cCtx.beginPath();
-      cCtx.lineWidth = 1;
-      cCtx.strokeStyle = "#000";
-      cCtx.arc(newX * scale, newY * scale, 15, 0, 2 * Math.PI);
-      cCtx.stroke();
-
-      if (!this.selectedTool || !this.isMouseDown) {
-        return;
-      }
-
-      event.preventDefault();
+      const newX = this.position(event, this.editCanvas).x;
+      const newY = this.position(event, this.editCanvas).y;
       this.currentEdit.push({
         sx: this.x,
         sy: this.y,
@@ -339,7 +333,7 @@ export default {
       this.x = newX;
       this.y = newY;
 
-      this.renderEdit(canvas, this.selectedTool, this.toolConfig, this.actualSizeViewport.width, this.currentEdit);
+      this.renderEdit(this.editCanvas, this.selectedTool, this.toolConfig, this.actualSizeViewport.width, this.currentEdit);
     },
 
     /**
