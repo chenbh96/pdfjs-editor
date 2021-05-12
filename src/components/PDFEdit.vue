@@ -1,5 +1,5 @@
 <template>
-  <div class="pdf-edit">
+  <div v-if="isEdit" class="pdf-edit">
     <el-tooltip effect="dark" content="Pen" :open-delay=500 placement="bottom-start">
       <a id="pen" 
       @mouseup.prevent.stop="togglePen($event)" 
@@ -82,9 +82,17 @@ export default {
         show: false,
         size: 10,
       },
+      user: JSON.parse(localStorage.getItem("fm_user"))
     }
   },
-
+  computed: {
+    isEdit() {
+      if (this.user) {
+        return this.user.edit > 0
+      }
+      return false
+    },
+  },
   methods: {
     togglePen(e, callback = false) {
       var target = null;
@@ -151,8 +159,7 @@ export default {
       if (!callback && common.isDoubleClick(this.toggleHighlighter, e)) {
         this.cancelTool();
         return;
-      } 
-
+      }
       if (callback) {
         this.toggleSelected(target);
       }
@@ -178,7 +185,6 @@ export default {
         this.$emit("update-selected", null);
       }
     },
-    
     clickUndo() {
       this.$emit("undo");
     },

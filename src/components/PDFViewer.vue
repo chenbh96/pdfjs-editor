@@ -301,13 +301,12 @@ export default {
     url() {
       this.currentPage = undefined;
     },
-    
     // 定时保存
     editData() {
       clearTimeout(this.lastActionTimer);
       var _this = this;
       this.lastActionTimer = setTimeout(function(){
-        if (!common.isEmpty(_this.editData)) {
+        if (_this.editData.length>0) {
           _this.modals.save = true;
         }
       }, 10000);

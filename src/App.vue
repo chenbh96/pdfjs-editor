@@ -44,6 +44,9 @@ export default {
           if (res.data.data.title) {
             localStorage.fm_title = res.data.data.title;
           }
+          if (res.data.data.user) {
+            localStorage.fm_user =  JSON.stringify(res.data.data.user);
+          }
         }
       });
     } else if(params.code){
@@ -56,6 +59,9 @@ export default {
           console.log(res.data.data);
           if (res.data.data.title) {
             localStorage.fm_title = res.data.data.title;
+          }
+          if (res.data.data.user) {
+            localStorage.fm_user =  JSON.stringify(res.data.data.user);
           }
         }
       });

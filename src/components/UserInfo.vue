@@ -1,15 +1,15 @@
 <template>
   <a class="user-info" @click.stop.prevent="clickAvatar">
     <CaretIcon style="margin-right: 15px;"/>
-    <img id="undo" class="avatar" src="https://wx.qlogo.cn/mmopen/vi_32/DYAIOgq83eolRXosbFgtTPsE65nKTCPzYsZ1amVkb1TsSIj9kaicoOgJzSTeCHjaX5t6AMnN31Zibmib6kY8M8PFw/132"/>
+    <img id="undo" class="avatar" :src="getAvatar"/>
     <div class="shadow" v-if="showMenu" @click.stop.prevent="clickShadow"></div>
     <div class="user-menu" v-if="showMenu">
-      <div class="menu-option"><img src="@/assets/icons/my.png" />Your profile</div>
+      <div class="menu-option"><img src="@/assets/icons/my.png" />{{getName}}</div>
       <div class="divider"/>
-      <div class="menu-option" @click.stop.prevent="save"><img src="@/assets/icons/save.png" />Save</div>
-      <div class="menu-option" @click.stop.prevent="share"><img src="@/assets/icons/share.png" />Share</div>
-      <div class="divider"/>
-      <div class="menu-option"><QuitIcon style="margin-right: 10px;"/>Quit</div>
+      <div v-if="isEdit" class="menu-option" @click.stop.prevent="save"><img src="@/assets/icons/save.png" />Save</div>
+      <div v-if="getRole" class="menu-option" @click.stop.prevent="share"><img src="@/assets/icons/share.png" />布置</div>
+      <div v-if="false" class="divider"/>
+      <div v-if="false" class="menu-option"><QuitIcon style="margin-right: 10px;"/>Quit</div>
     </div>
   </a>
 </template>
@@ -42,9 +42,36 @@ export default {
   data() {
     return {
       showMenu: false,
+      user: JSON.parse(localStorage.getItem("fm_user"))
     }
   },
-
+  computed: {
+    getAvatar() {
+      var user = JSON.parse(localStorage.getItem("fm_user"))
+      if (user) {
+        return user.avatar
+      }
+      return "https://wx.qlogo.cn/mmopen/vi_32/DYAIOgq83eolRXosbFgtTPsE65nKTCPzYsZ1amVkb1TsSIj9kaicoOgJzSTeCHjaX5t6AMnN31Zibmib6kY8M8PFw/132"
+    },
+    isEdit() {
+      if (this.user) {
+        return this.user.edit > 0
+      }
+      return false
+    },
+    getRole() {
+      if (this.user) {
+        return this.user.role < 2
+      }
+      return false
+    },
+    getName() {
+      if (this.user) {
+        return this.user.name
+      }
+      return "未知"
+    }
+  },
   methods: {
     clickAvatar() {
       this.showMenu = true;
