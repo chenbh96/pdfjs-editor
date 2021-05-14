@@ -68,6 +68,7 @@
     <div class="modal-shadow" v-if="showModal">
       <ModalShare class="modal" 
         v-if="modals.share"
+        :remark="remark"
         @close="closeShare"/>
       <ModalRemark class="modal"
         v-if="modals.remark"
@@ -144,6 +145,7 @@ export default {
       lastActionTimer: null, // 最后操作倒计时
       perPageData: {},
       redoData: [],
+      remark: "",
     };
   },
 
@@ -278,6 +280,7 @@ export default {
               var dat=res.data;
               if(dat.data&&dat.data.fid) {
                 localStorage.fm_fid = dat.data.fid;
+                localStorage.fm_dtype = 1;
               }
               self.modals.save = false;
             });
@@ -308,9 +311,10 @@ export default {
       this.modals.remark = false;
     },
 
-    saveRemark() {
+    saveRemark(value) {
       this.modals.remark = false;
       this.modals.share = true;
+      this.remark = value;
     },
   },
 

@@ -30,6 +30,7 @@ export default {
   },
 
   created() {
+    console.log("helo");
     var params = this.$route.query;
     var _this = this;
     if (params.fid && params.userid) {
@@ -44,6 +45,14 @@ export default {
           if (res.data.data.title) {
             localStorage.fm_title = res.data.data.title;
           }
+          if (res.data.data.user) {
+            localStorage.fm_user =  JSON.stringify(res.data.data.user);
+          }
+          if (res.data.data.dtype) {
+            localStorage.fm_dtype = res.data.data.dtype;
+          } else {
+            localStorage.fm_dtype = 0;
+          }
         }
       });
     } else if(params.code){
@@ -57,12 +66,29 @@ export default {
           if (res.data.data.title) {
             localStorage.fm_title = res.data.data.title;
           }
+          if (res.data.data.user) {
+            localStorage.fm_user =  JSON.stringify(res.data.data.user);
+          }
+          if (res.data.data.dtype) {
+            localStorage.fm_dtype = res.data.data.dtype;
+          } else {
+            localStorage.fm_dtype = 0;
+          }
         }
       });
     } else {
       alert("请求参数错误，没有找到对应文件");
     }
     localStorage.removeItem('fm_fid');
+
+    // 异步获取学生和班级列表
+    this.loadClassStudent().then((res) => {
+      if (res.data.data) {
+        localStorage.fm_students = JSON.stringify(res.data.data);
+      } else {
+        localStorage.removeItem("fm_students");
+      }
+    });
   },
 
   data() {
@@ -81,6 +107,13 @@ export default {
     },
     onDocumentErrored(e) {
       this.documentError = e.text;
+    },
+    async loadClassStudent() {
+      var ret = await this.$api.user.getStudents({
+        userid: 1283
+      });
+      console.log(ret);
+      return ret;
     },
   },
 

@@ -26,7 +26,7 @@
 import { SAVE_MODE } from '@/utils/constants';
 
 export default {
-  name: 'ModalSave',
+  name: 'ModalRemark',
 
   components: {
   },
@@ -60,7 +60,7 @@ export default {
     },
 
     save() {
-      this.$emit("save");
+      this.$emit("save", this.remark);
     },
   }
 }

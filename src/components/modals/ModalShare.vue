@@ -23,24 +23,26 @@
             </el-input>
           </div>
           <div class="left-bottom">
-              <template v-for="(student, index) in studentList">
+            <el-checkbox-group v-model="selectedStudentIds">
+              <template v-for="(student, index) in studentFilter()">
                 <div class="list-item">
-                  <el-checkbox style="width: 100%; height: 100%; box-sizing: border-box; display: flex; align-items: center; padding: 0 25px;" @change="handleSelect($event, student.id)">
+                  <el-checkbox style="width: 100%; height: 100%; box-sizing: border-box; display: flex; align-items: center; padding: 0 25px;" @change="handleSelect($event, student.uaid)" :label="student.uaid">
                     <div class="list-item-title">
-                      {{student.name}}
+                      {{student.stu_name}}
                     </div>
                     <div class="list-item-detail">
-                      {{"000000"+student.id}}
+                      {{student.smp_id}}
                     </div>
                   </el-checkbox>
                 </div>
               </template>
+            </el-checkbox-group>
           </div>
         </div>
         <div class="container-right">
           <div class="modal-title">已选择学生 ({{selectedCount}})</div>
           <div class="scroll-container" style="flex: 1;">
-            <div v-for="(student, index) in selectedStudents" :key="student.id" class="right-box-item">{{student.name}}</div>
+            <div v-for="(student, index) in selectedStudents" :key="student.smp_id" class="right-box-item">{{student.stu_name}}</div>
           </div>
         </div>
       </template>
@@ -48,7 +50,7 @@
       <template v-if="activeIndex == 2">
         <div class="class-container">
           <div class="search-div">
-            <el-input placeholder="输入班级名称或班号" class="student-search" v-model="searchValue">
+            <el-input placeholder="输入班级名称" class="student-search" v-model="searchValue">
               <i
                 class="el-icon-search el-input__icon"
                 slot="suffix"
@@ -58,38 +60,39 @@
           </div>
             <el-table
               ref="singleTable"
-              :data="classList"
+              :data="classList.filter(data => !searchValue || data.class_name.toLowerCase().includes(searchValue.toLowerCase()))"
               highlight-current-row
               @current-change="handleCurrentChange"
+              height="calc(100%  - 71px)"
               style="width: 100%;"
               show-overflow-tooltip>
               <el-table-column
                 width="50">
                 <template slot-scope="scope" >
-                  <el-radio v-model="selectedClass" :label="scope.row.id" style="margin-left: 15px;">
+                  <el-radio v-model="selectedClass.class_id" :label="scope.row.class_id" style="margin-left: 15px;">
                   </el-radio>
                 </template>
               </el-table-column>
               <el-table-column
-                property="name"
+                property="class_name"
                 label="班级名称"
                 show-overflow-tooltip>
                 <template slot-scope="scope">
-                  <span style="font-weight: 600">{{ scope.row.name }}</span>
+                  <span style="font-weight: 600">{{ scope.row.class_name }}</span>
                 </template>
               </el-table-column>
               <el-table-column
-                property="type"
+                property="subject"
                 label="科目"
                 width="150">
               </el-table-column>
               <el-table-column
-                property="students"
+                property="items"
                 label="学生"
                 show-overflow-tooltip>
                 <template slot-scope="scope" >
                   <span style="margin-right: 25px;">
-                    {{scope.row.students.join(", ")}}
+                    {{scope.row.items.map(x=>{return x.stu_name;}).join(", ")}}
                   </span>
                 </template>
               </el-table-column>
@@ -110,13 +113,20 @@
       </div>
       <div style="padding-right: 20px;">
         <el-button >取 消</el-button>
-        <el-button type="primary" >确 定</el-button>
+        <el-button type="primary" @click.prevent="save" >确 定</el-button>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import common from '@/utils/common.js';
+
+// 格式化YYYY-mm-dd
+Date.prototype.getYmd = function() {
+    const d = new Date(this);
+    return new Date(d.getTime() - d.getTimezoneOffset() * 60 * 1000).toISOString().split('T')[0];
+}
 
 export default {
   name: 'ModalShare',
@@ -125,7 +135,9 @@ export default {
   },
 
   props: {
-
+    remark: {
+      default: "",
+    },
   },
 
   data() {
@@ -133,29 +145,11 @@ export default {
       activeIndex: "1",
       searchValue: "",
       showMenu: false,
-      studentList: [],
+      studentList: new Map(),
       selectedStudents: [],
-      deadline: "",
-      classList: [
-        {
-          id: 1,
-          name: "A班",
-          type: "托福",
-          students: ["学生1", "学生2", "学生3","学生4", "学生5", "学生6","学生1", "学生2", "学生3","学生4", "学生5", "学生6","学生1", "学生2", "学生3","学生4", "学生5", "学生6","学生1", "学生2", "学生3","学生4", "学生5", "学生6"]
-        },
-        {
-          id: 2,
-          name: "B班",
-          type: "托福",
-          students: ["学生1", "学生1", "学生1","学生1", "学生1", "学生1"]
-        },
-        {
-          id: 3,
-          name: "C班",
-          type: "托福",
-          students: ["学生1"]
-        },
-      ],
+      selectedStudentIds: [],
+      deadline: new Date(),
+      classList: [],
       selectedClass: 0,
     }
   },
@@ -163,18 +157,29 @@ export default {
   computed: {
     selectedCount() {
       return this.selectedStudents.length;
-    }
+    },
   },
 
   methods: {
-    help() {
-      this.$emit("help");
+    studentFilter() {
+      var ret = [];
+      if (this.searchValue.length == 0) {
+        return this.studentList.values();
+      } else {
+        Array.from(this.studentList.values()).forEach((student) => {
+          if (student.stu_name.includes(this.searchValue) || student.smp_id.includes(this.searchValue)) {
+            ret.push(student);
+          }
+        });
+      }
+      return ret;
     },
 
     menuSwitch(index) {
       this.activeIndex = index;
       if (index == 2) {
         this.selectedStudents = [];
+        this.selectedStudentIds = [];
       } else {
         this.selectedClass = 0;
       }
@@ -182,14 +187,10 @@ export default {
 
     handleSelect(value, id) {
       if (value) {
-        for(var i = 0; i < this.studentList.length; i++) {
-          if (id == this.studentList[i].id) {
-            this.selectedStudents.push(this.studentList[i]);
-          }
-        }
+        this.selectedStudents.push(this.studentList.get(id));
       } else {
         for(var i = 0; i < this.selectedStudents.length; i++) {
-          if (id == this.selectedStudents[i].id) {
+          if (id == this.selectedStudents[i].uaid) {
             this.selectedStudents.splice(i, 1);
           }
         }
@@ -197,21 +198,40 @@ export default {
     },
 
     handleCurrentChange(newRow) {
-      this.selectedClass = newRow.id;
+      this.selectedClass = newRow;
     },
 
     close() {
+      this.$emit("close");
+    },
+
+    save() {
+      this.$api.user.share({
+        title: this.remark, 
+        class_id: this.selectedClass ? this.selectedClass.class_id : 0, 
+        exp_time: this.deadline.getYmd(),
+        class_name: this.selectedClass ? this.selectedClass.class_name : "", 
+        data: this.selectedClass ? this.selectedClass.items.map(x => x.uaid) : this.selectedStudentIds
+      }).then(res => {
+        console.log(res);
+      });
       this.$emit("close");
     }
   },
 
   mounted() {
-    var ret = [];
-    for (var i = 0; i < 40; i++) {
-      ret.push({
-        name: "学生 "+i,
-        id: i,
-      }); 
+    var ret = new Map();
+    var classList = localStorage.getItem("fm_students");
+    if (!common.isEmpty(classList)) {
+      classList = JSON.parse(classList);
+      this.classList = classList;
+      classList.forEach(c => {
+        if (c.items) {
+          c.items.forEach(student => {
+            ret.set(student.uaid, student);
+          })
+        }
+      });
     }
     this.studentList = ret;
   }

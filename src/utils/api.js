@@ -3,10 +3,10 @@
  */
 // 文章模块接口
 import pdf from '@/api/pdf.js';
+import user from '@/api/user.js';
 // 其他模块的接口……
 
 // 导出接口
 export default {
-    pdf,
-    // ……
+    pdf, user
 }
