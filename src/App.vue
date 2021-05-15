@@ -30,7 +30,6 @@ export default {
   },
 
   created() {
-    console.log("helo");
     var params = this.$route.query;
     var _this = this;
     if (params.fid && params.userid) {

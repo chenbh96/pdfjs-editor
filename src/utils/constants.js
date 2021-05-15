@@ -11,3 +11,14 @@ export const TOOLS = {
     highlighter: "highlighter",
     eraser: "eraser",
 };
+
+export const TIP_MSG = {
+    init: "初始化",
+    loadStart: "正在加载文件",
+    emptyUrl: "文件URL为空",
+    downloadFail: "无法获取文件",
+    loadSuccess: "下载完成",
+    saveSuccess: "保存成功",
+    saveFail: "保存失败",
+    noEdit: "您还没有任何编辑内容"
+};

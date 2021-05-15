@@ -45,6 +45,8 @@
       @page-focus="updateCurrentPage"
       @document-rendered="onDocumentRendered"
       @document-errored="onDocumentErrored"
+      @tip="tip"
+      @close-tip="closeTip"
       >
       <template v-slot:preview="{pages}">
         <PDFPreview
@@ -76,9 +78,13 @@
         @save="saveRemark" />
       <ModalSave class="modal" 
         v-if="modals.save" 
-        :show="modals.save" 
         @close="closeSave"
         @save="save"/>
+      <ModalTip class="modal box-shadow"
+        style="z-index: 99;" 
+        v-if="modals.tip"
+        :msg="tipMsg" 
+        @close="closeTip"/>
     </div>
   </div>
 </template>
@@ -96,8 +102,10 @@ import UserInfo from './UserInfo';
 import ModalShare from './modals/ModalShare';
 import ModalSave from './modals/ModalSave';
 import ModalRemark from './modals/ModalRemark';
+import ModalTip from './modals/ModalTip';
+
 import common from '@/utils/common';
-import {A4_WIDTH, A4_HEIGHT} from '@/utils/constants';
+import {A4_WIDTH, A4_HEIGHT, TIP_MSG} from '@/utils/constants';
 
 function floor(value, precision) {
   const multiplier = Math.pow(10, precision || 0);
@@ -119,6 +127,7 @@ export default {
     ModalShare,
     ModalSave,
     ModalRemark,
+    ModalTip
   },
 
   props: {
@@ -141,11 +150,14 @@ export default {
         share: false,
         save: false,
         remark: false,
+        tip: false,
       },
       lastActionTimer: null, // 最后操作倒计时
       perPageData: {},
       redoData: [],
       remark: "",
+      tipMsg: "",
+      tipTimer: null,
     };
   },
 
@@ -229,6 +241,7 @@ export default {
     },
 
     save(title, action) {
+      clearTimeout(this.lastActionTimer);
       var ret = [];
 
       var pages = new Set();
@@ -283,6 +296,7 @@ export default {
                 localStorage.fm_dtype = 1;
               }
               self.modals.save = false;
+              self.tip(TIP_MSG.saveSuccess, 1);
             });
           }
         }
@@ -292,6 +306,10 @@ export default {
 
     ///////////////// 弹窗 /////////////////
     modalSave() {
+      if (this.editData.length == 0) {
+        this.tip(TIP_MSG.noEdit, 1);
+        return;
+      }
       this.modals.save = true;
     },
 
@@ -315,6 +333,23 @@ export default {
       this.modals.remark = false;
       this.modals.share = true;
       this.remark = value;
+    },
+
+    tip(msg, delay = 0) {
+      clearTimeout(this.tipTimer);
+      this.tipMsg = msg;
+      this.modals.tip = true;
+      if (delay > 0) {
+        this.tipTimer = setTimeout(() => {
+          this.modals.tip = false;
+        }, delay * 1000);
+      }
+    }, 
+
+    closeTip() {
+      clearTimeout(this.tipTimer);
+      this.tipMsg = false;
+      this.modals.tip = false;
     },
   },
 

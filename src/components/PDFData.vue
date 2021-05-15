@@ -7,6 +7,7 @@ import debug from 'debug';
 const log = debug('app:components/PDFData');
 
 import range from 'lodash/range';
+import {TIP_MSG} from '@/utils/constants.js';
 
 function getDocument(url) {
   // Using import statement in this way allows Webpack
@@ -51,9 +52,21 @@ export default {
   watch: {
     url: {
       handler(url) {
+        if (!url || url == "") {
+          this.$emit("tip", TIP_MSG.emptyUrl);
+          return; 
+        }
+        var currentUrl = url;
+        this.$emit("tip", TIP_MSG.loadStart);
         getDocument(url)
-          .then(pdf => (this.pdf = pdf))
+          .then(pdf => {
+            this.pdf = pdf;
+            this.$emit("close-tip");
+          })
           .catch(response => {
+            if (!currentUrl) {
+              this.$emit("tip", TIP_MSG.downloadFail);
+            }
             this.$emit('document-errored', {text: 'Failed to retrieve PDF', response});
             log('Failed to retrieve PDF', response);
           });
