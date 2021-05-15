@@ -47,6 +47,14 @@ export default {
           }
           if (res.data.data.user) {
             localStorage.fm_user =  JSON.stringify(res.data.data.user);
+             // 异步获取学生和班级列表
+            _this.loadClassStudent(res.data.data.user.userid).then((res) => {
+              if (res.data.data) {
+                localStorage.fm_students = JSON.stringify(res.data.data);
+              } else {
+                localStorage.removeItem("fm_students");
+              }
+            });
           }
           if (res.data.data.dtype) {
             localStorage.fm_dtype = res.data.data.dtype;
@@ -68,6 +76,14 @@ export default {
           }
           if (res.data.data.user) {
             localStorage.fm_user =  JSON.stringify(res.data.data.user);
+             // 异步获取学生和班级列表
+            _this.loadClassStudent(res.data.data.user.userid).then((res) => {
+              if (res.data.data) {
+                localStorage.fm_students = JSON.stringify(res.data.data);
+              } else {
+                localStorage.removeItem("fm_students");
+              }
+            });
           }
           if (res.data.data.dtype) {
             localStorage.fm_dtype = res.data.data.dtype;
@@ -81,14 +97,7 @@ export default {
     }
     localStorage.removeItem('fm_fid');
 
-    // 异步获取学生和班级列表
-    this.loadClassStudent().then((res) => {
-      if (res.data.data) {
-        localStorage.fm_students = JSON.stringify(res.data.data);
-      } else {
-        localStorage.removeItem("fm_students");
-      }
-    });
+   
   },
 
   data() {
@@ -108,9 +117,9 @@ export default {
     onDocumentErrored(e) {
       this.documentError = e.text;
     },
-    async loadClassStudent() {
+    async loadClassStudent(uid) {
       var ret = await this.$api.user.getStudents({
-        userid: 1283
+        userid: uid
       });
       console.log(ret);
       return ret;

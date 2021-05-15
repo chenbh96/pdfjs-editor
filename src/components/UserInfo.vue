@@ -6,7 +6,7 @@
     <div class="user-menu" v-if="showMenu">
       <div class="menu-option"><img src="@/assets/icons/my.png" />{{getName}}</div>
       <div class="divider"/>
-      <div v-if="isEdit" class="menu-option" @click.stop.prevent="save"><img src="@/assets/icons/save.png" />Save</div>
+      <div v-if="isEdit" class="menu-option" @click.stop.prevent="save"><img src="@/assets/icons/save.png" />保存</div>
       <div v-if="getRole" class="menu-option" @click.stop.prevent="share"><img src="@/assets/icons/share.png" />布置</div>
       <div v-if="false" class="divider"/>
       <div v-if="false" class="menu-option"><QuitIcon style="margin-right: 10px;"/>Quit</div>
