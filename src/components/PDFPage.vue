@@ -199,7 +199,7 @@ export default {
             this.highlighter(event, "finish");
             break;
           case TOOLS.eraser: 
-            this.eraser(event, "finish");
+            this.eraser(event);
             break;
         }
         if (this.currentEdit.length) {
@@ -219,7 +219,7 @@ export default {
 
     mousemove(event) {
       switch(this.selectedTool) {
-        case TOOLS.pen:
+        case TOOLS.pen: {
           // 判断是否选中工具并且鼠标正在点击
           if (!this.selectedTool || !this.isMouseDown) {
             return;
@@ -227,14 +227,16 @@ export default {
           event.preventDefault(); // 取消移动端拖拽滚动页面
           this.pen(event, "draw");
           break;
-        case TOOLS.highlighter:
+        }
+        case TOOLS.highlighter: {
           if (!this.selectedTool || !this.isMouseDown) {
             return;
           }
           event.preventDefault(); 
           this.highlighter(event, "draw");
           break;
-        case TOOLS.eraser:
+        }
+        case TOOLS.eraser: {
           var layerCanvas = this.layerCanvas;
           const cCtx = layerCanvas.getContext('2d');
           cCtx.clearRect(0, 0, layerCanvas.width, layerCanvas.height);
@@ -252,6 +254,7 @@ export default {
           event.preventDefault();
           this.eraser(event, "draw");
           break;
+        }
       }
     },
 
@@ -320,7 +323,7 @@ export default {
       }
     },
 
-    eraser(event, mode="draw") {
+    eraser(event) {
       const newX = this.position(event, this.editCanvas).x;
       const newY = this.position(event, this.editCanvas).y;
       this.currentEdit.push({
@@ -418,10 +421,10 @@ export default {
     pageData(newString, oldString) {
       var newValue = "", oldValue = "";
       if (newString) {
-        var newValue = JSON.parse(newString);
+        newValue = JSON.parse(newString);
       }
       if (oldString) {
-        var oldValue = JSON.parse(oldString);
+        oldValue = JSON.parse(oldString);
       }
       if (newValue.length > oldValue.length) { // 新增
         var lastEdit = newValue[newValue.length-1];

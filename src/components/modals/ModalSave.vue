@@ -48,7 +48,7 @@ export default {
 
   data() {
     return {
-      name: localStorage.fm_title,
+      name: this.$store.state.title,
       tag: "",
       students: [],
     }
@@ -68,13 +68,6 @@ export default {
   },
 
   methods: {
-    help() {
-      this.$emit("help");
-    },
-
-    handleSelect(value, id) {
-      console.log(value, id);
-    },
 
     close() {
       this.$emit("close");

@@ -30,6 +30,7 @@ export default {
   },
 
   created() {
+    this.$store.commit("setUserInfo", {test: "test"});
     var params = this.$route.query;
     var _this = this;
     if (params.fid && params.userid) {
@@ -64,21 +65,25 @@ export default {
       });
     } else if(params.code){
       localStorage.fm_code = params.code
+      this.$store.dispatch("setCode", params.code); // store
       this.$api.pdf.get({
         code: params.code
       }).then(res=>{
-        if (res.data.data) {
+        if (res.data && res.data.data) {
           _this.url = res.data.data.pdfUrl;
           console.log(res.data.data);
           if (res.data.data.title) {
             localStorage.fm_title = res.data.data.title;
+            _this.$store.dispatch("setTitle", res.data.data.title);
           }
           if (res.data.data.user) {
             localStorage.fm_user =  JSON.stringify(res.data.data.user);
+            _this.$store.dispatch("setUserInfo", res.data.data.user);
              // 异步获取学生和班级列表
             _this.loadClassStudent(res.data.data.user.userid).then((res) => {
               if (res.data.data) {
                 localStorage.fm_students = JSON.stringify(res.data.data);
+                _this.$store.dispatch("setStudents", res.data.data);
               } else {
                 localStorage.removeItem("fm_students");
               }
@@ -86,17 +91,14 @@ export default {
           }
           if (res.data.data.dtype) {
             localStorage.fm_dtype = res.data.data.dtype;
-          } else {
-            localStorage.fm_dtype = 0;
-          }
+            _this.$store.dispatch("updateDtype");
+          } 
         }
       });
     } else {
       alert("请求参数错误，没有找到对应文件");
     }
     localStorage.removeItem('fm_fid');
-
-   
   },
 
   data() {
@@ -120,7 +122,6 @@ export default {
       var ret = await this.$api.user.getStudents({
         userid: uid
       });
-      console.log(ret);
       return ret;
     },
   },

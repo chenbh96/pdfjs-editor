@@ -52,7 +52,6 @@
 import common from "@/utils/common.js";
 import PenIcon from '../assets/icon-pen.svg';
 import HighlighterIcon from '../assets/icon-highlighter.svg';
-import {TOOLS} from '@/utils/constants.js';
 
 export default {
   name: 'PDFEdit',
@@ -82,10 +81,12 @@ export default {
         show: false,
         size: 10,
       },
-      user: JSON.parse(localStorage.getItem("fm_user"))
     }
   },
   computed: {
+    user() {
+      return this.$store.state.userInfo;
+    },
     isEdit() {
       if (this.user) {
         return this.user.edit > 0

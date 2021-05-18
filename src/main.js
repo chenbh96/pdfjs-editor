@@ -4,6 +4,7 @@ import VueRouter from 'vue-router'
 import api from '@/utils/api' // 导入api接口
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css';
+import store from "./stores/store"
 
 Vue.config.productionTip = false;
 Vue.prototype.$api = api; // 将api挂载到vue的原型上
@@ -20,5 +21,6 @@ var router = new VueRouter({
 
 new Vue({
   router,
+  store,
   render: h => h(App),
 }).$mount('#app')

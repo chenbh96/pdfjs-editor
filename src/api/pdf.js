@@ -5,6 +5,7 @@
 import base from '@/utils/base'; // 导入接口域名列表
 import http from '@/utils/http'; // 导入http中创建的axios实例
 import common from '@/utils/common';
+import store from '@/stores/store';
 
 const pdf = {
 
@@ -46,11 +47,11 @@ const pdf = {
      * @return   {[type]}                             [description]
      */
     save (requestBody) {
-        if (localStorage.fm_code) {
-            requestBody.code = localStorage.fm_code;
+        if (!common.isEmpty(store.state.code)) {
+            requestBody.code = store.state.code;
         }
-        if (localStorage.fm_fid) {
-            requestBody.fid = parseInt(localStorage.fm_fid);
+        if (!common.isEmpty(store.state.fid)) {
+            requestBody.fid = store.state.fid;
         }
         return http.post(`${base[common.env]}/v1/pdf/index`, requestBody);
     },

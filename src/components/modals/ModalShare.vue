@@ -24,8 +24,8 @@
           </div>
           <div class="left-bottom">
             <el-checkbox-group v-model="selectedStudentIds">
-              <template v-for="(student, index) in studentFilter()">
-                <div class="list-item">
+              <template v-for="student in studentFilter()">
+                <div class="list-item" :key="student.uaid">
                   <el-checkbox style="width: 100%; height: 100%; box-sizing: border-box; display: flex; align-items: center; padding: 0 25px;" @change="handleSelect($event, student.uaid)" :label="student.uaid">
                     <div class="list-item-title">
                       {{student.stu_name}}
@@ -42,7 +42,7 @@
         <div class="container-right">
           <div class="modal-title">已选择学生 ({{selectedCount}})</div>
           <div class="scroll-container" style="flex: 1;">
-            <div v-for="(student, index) in selectedStudents" :key="student.smp_id" class="right-box-item">{{student.stu_name}}</div>
+            <div v-for="student in selectedStudents" :key="student.smp_id" class="right-box-item">{{student.stu_name}}</div>
           </div>
         </div>
       </template>
@@ -108,11 +108,12 @@
           type="date"
           placeholder="未设置"
           size="small"
+          clear-icon="el-icon-close"
           style="width: 140px;">
         </el-date-picker>
       </div>
       <div style="padding-right: 20px;">
-        <el-button >取 消</el-button>
+        <el-button @click.prevent="close">取 消</el-button>
         <el-button type="primary" @click.prevent="save" >确 定</el-button>
       </div>
     </div>
@@ -123,8 +124,11 @@
 import common from '@/utils/common.js';
 
 // 格式化YYYY-mm-dd
-Date.prototype.getYmd = function() {
-    const d = new Date(this);
+function getYmd(date) {
+    if (common.isEmpty(date)) {
+      return "";
+    }
+    const d = new Date(date);
     return new Date(d.getTime() - d.getTimezoneOffset() * 60 * 1000).toISOString().split('T')[0];
 }
 
@@ -148,7 +152,7 @@ export default {
       studentList: new Map(),
       selectedStudents: [],
       selectedStudentIds: [],
-      deadline: new Date(),
+      deadline: "",
       classList: [],
       selectedClass: 0,
     }
@@ -209,7 +213,7 @@ export default {
       this.$api.user.share({
         title: this.remark, 
         class_id: this.selectedClass ? this.selectedClass.class_id : 0, 
-        exp_time: this.deadline.getYmd(),
+        exp_time: getYmd(this.deadline),
         class_name: this.selectedClass ? this.selectedClass.class_name : "", 
         data: this.selectedClass ? this.selectedClass.items.map(x => x.uaid) : this.selectedStudentIds
       }).then(res => {
@@ -221,9 +225,8 @@ export default {
 
   mounted() {
     var ret = new Map();
-    var classList = localStorage.getItem("fm_students");
+    var classList = this.$store.state.students;
     if (!common.isEmpty(classList)) {
-      classList = JSON.parse(classList);
       this.classList = classList;
       classList.forEach(c => {
         if (c.items) {

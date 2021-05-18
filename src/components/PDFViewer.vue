@@ -68,20 +68,20 @@
     </PDFData>
 
     <div class="modal-shadow" v-if="showModal">
-      <ModalShare class="modal" 
+      <ModalShare class="modal-center box-shadow" 
         v-if="modals.share"
         :remark="remark"
         @close="closeShare"/>
-      <ModalRemark class="modal"
+      <ModalRemark class="modal-center box-shadow"
         v-if="modals.remark"
         @close="closeRemark"
         @save="saveRemark" />
-      <ModalSave class="modal" 
+      <ModalSave class="modal-center box-shadow" 
         v-if="modals.save" 
         @close="closeSave"
         @save="save"/>
-      <ModalTip class="modal box-shadow"
-        style="z-index: 99;" 
+      <ModalTip class="box-shadow"
+        style="z-index: 99; position: absolute; top: 70px; right: 12px;" 
         v-if="modals.tip"
         :msg="tipMsg" 
         @close="closeTip"/>
@@ -105,7 +105,7 @@ import ModalRemark from './modals/ModalRemark';
 import ModalTip from './modals/ModalTip';
 
 import common from '@/utils/common';
-import {A4_WIDTH, A4_HEIGHT, TIP_MSG} from '@/utils/constants';
+import {A4_WIDTH, A4_HEIGHT, TIP_MSG, SAVE_MODE} from '@/utils/constants';
 
 function floor(value, precision) {
   const multiplier = Math.pow(10, precision || 0);
@@ -254,6 +254,7 @@ export default {
         var canvas = document.getElementById("canvas-"+index+"-edit");
         var base64=canvas.toDataURL("image/png");
         var img = new Image;
+        var _this = this;
 
         img.onload = resizeImage;
         img.src = base64;
@@ -294,6 +295,9 @@ export default {
               if(dat.data&&dat.data.fid) {
                 localStorage.fm_fid = dat.data.fid;
                 localStorage.fm_dtype = 1;
+                _this.$store.dispatch("setFid", dat.data.fid);
+                _this.$store.dispatch("updateDtype");
+                _this.$store.dispatch("updateFirstSave");
               }
               self.modals.save = false;
               self.tip(TIP_MSG.saveSuccess, 1);
@@ -364,7 +368,11 @@ export default {
       var _this = this;
       this.lastActionTimer = setTimeout(function(){
         if (!common.isEmpty(_this.editData)) {
-          _this.modals.save = true;
+          if (_this.$store.state.firstSave) {
+            _this.save(_this.$store.state.title, SAVE_MODE.EDIT);
+          } else {
+            _this.modals.save = true;
+          }
         }
       }, 10000);
     }
@@ -433,11 +441,10 @@ header {
   right: 0;
   top: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.3);
   z-index: 999;
 }
 
-.modal {
+.modal-center {
   position: absolute;
   left: 50%;
   top: 50%;

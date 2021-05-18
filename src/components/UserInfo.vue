@@ -42,14 +42,15 @@ export default {
   data() {
     return {
       showMenu: false,
-      user: JSON.parse(localStorage.getItem("fm_user"))
     }
   },
   computed: {
+    user() {
+      return this.$store.getters.getUserInfo;
+    },
     getAvatar() {
-      var user = JSON.parse(localStorage.getItem("fm_user"))
-      if (user) {
-        return user.avatar
+      if (this.user) {
+        return this.user.avatar
       }
       return "https://wx.qlogo.cn/mmopen/vi_32/DYAIOgq83eolRXosbFgtTPsE65nKTCPzYsZ1amVkb1TsSIj9kaicoOgJzSTeCHjaX5t6AMnN31Zibmib6kY8M8PFw/132"
     },

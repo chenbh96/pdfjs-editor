@@ -17,7 +17,8 @@
     "lodash": "^4.17.11",
     "pdfjs-dist": "^2.0.943",
     "vue": "^2.6.3",
-    "vue-router": "^3.5.1"
+    "vue-router": "^3.5.1",
+    "vuex": "^3.5.1"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.4.0",

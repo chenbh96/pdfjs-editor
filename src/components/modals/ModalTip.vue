@@ -8,8 +8,6 @@
 
 <script>
 
-import { SAVE_MODE } from '@/utils/constants';
-
 export default {
   name: 'ModalTip',
 
@@ -36,7 +34,6 @@ export default {
 
 <style scoped>
 .modal-save-template {
-  border-radius: 6px;
   background-color: #fff;
   text-align: left;
   display: flex;
@@ -50,12 +47,12 @@ export default {
 }
 
 .modal-content {
-  min-width: 200px;
-  height: 100px;
-  padding: 15px;
+  padding: 15px 25px;
   display: flex; 
   justify-content: center; 
   align-items: center;
+  font-size: 12px;
+  color: #000;
 }
 
 .modal-footer {
