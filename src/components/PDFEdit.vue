@@ -9,12 +9,12 @@
         <img v-else src="@/assets/icons/pen.png"/>
       </a>
     </el-tooltip>
-    <div v-show="pen.show" class="screen" @mouseup.prevent.stop="togglePen($event)"></div>
-    <div v-show="pen.show" class="pen-option">
-      <input type="color"  class="pen-color-picker  color-picker" @input="changePenColor($event.target.value)">
-      <input type="range" class="pen-line-range" @input="changePenSize($event.target.value)" min="1" max="72" value="1">
-      <span class="pen-range-span"><label class="pen-range-value">{{pen.size}}</label>Px</span>
+    <div v-if="pen.show" class="screen" @mouseup.prevent.stop="togglePen($event)"></div>
+    <div v-if="pen.show" class="pen-option option">
+      <Sizes :selected="pen.size" :options="pen.sizeOptions" @select="changePenSize" style="margin-right: 30px;"/>
+      <Colors :selected="pen.color" :options="pen.colorOptions" @select="changePenColor"/>
     </div>
+
     <el-tooltip effect="dark" content="Highlighter" :open-delay=500 placement="bottom-start">
       <a id="highlighter" 
       @mouseup.prevent.stop="toggleHighlighter($event)"
@@ -25,6 +25,7 @@
         <img v-else src="@/assets/icons/highlighter.png"/>
       </a>
     </el-tooltip>
+
     <el-tooltip effect="dark" content="Eraser" :open-delay=500 placement="bottom-start">
       <a id="eraser" 
       @mouseup.prevent.stop="toggleEraser($event)"
@@ -35,11 +36,17 @@
         <img v-else src="@/assets/icons/eraser.png"/>
       </a>
     </el-tooltip>
+    <div v-if="eraser.show" class="screen" @mouseup.prevent.stop="toggleEraser($event)"></div>
+    <div v-if="eraser.show" class="pen-option option">
+      <Sizes :selected="eraser.size" :options="eraser.sizeOptions" @select="changeEraserSize"/>
+    </div>
+
     <el-tooltip effect="dark" content="Undo" :open-delay=500 placement="bottom-start">
       <a id="undo" @click.prevent.stop="clickUndo()" class="icon">
         <img src="@/assets/icons/undo.png"/>
       </a>
     </el-tooltip>
+
     <el-tooltip effect="dark" content="Redo" :open-delay=500 placement="bottom-start">
       <a id="redo" @click.prevent.stop="clickRedo()" class="icon">
         <img src="@/assets/icons/redo.png"/>
@@ -52,13 +59,17 @@
 import common from "@/utils/common.js";
 import PenIcon from '../assets/icon-pen.svg';
 import HighlighterIcon from '../assets/icon-highlighter.svg';
+import Sizes from './tool_config/Sizes';
+import Colors from './tool_config/Colors';
 
 export default {
   name: 'PDFEdit',
 
   components: {
     PenIcon,
-    HighlighterIcon
+    HighlighterIcon,
+    Sizes,
+    Colors,
   },
 
   props: {
@@ -69,8 +80,10 @@ export default {
     return {
       pen: {
         show: false,
-        color: "#000",
-        size: 1,
+        sizeOptions: [4, 6, 10, 14, 18],
+        size: 10,
+        colorOptions: ["#E16165", "#66A8F4", "#69BC6F", "#EDC64F", "#000000"],
+        color: "#E16165",
       },
       highlighter: {
         show: false,
@@ -79,6 +92,7 @@ export default {
       },
       eraser: {
         show: false,
+        sizeOptions: [4, 6, 10, 14, 18],
         size: 10,
       },
     }
@@ -115,16 +129,6 @@ export default {
       }
     },
 
-    changePenSize(value) {
-      this.pen.size = parseInt(value);
-      this.$emit("update-config", this.pen);
-    },
-
-    changePenColor(value) {
-      this.pen.color = value;
-      this.$emit("update-config", this.pen);
-    },
-
     toggleHighlighter(e, callback = false) {
       var target = null;
       if (e.target.tagName.toLowerCase() == 'a') {
@@ -153,7 +157,7 @@ export default {
       } else if (e.target.parentNode.tagName.toLowerCase() == 'a') {
         target = e.target.parentNode;
       } else {
-        this.highlighter.show = false;
+        this.eraser.show = false;
         return;
       }
 
@@ -177,6 +181,22 @@ export default {
         this[target.id].show = true;
         return true;
       }
+    },
+
+
+    changePenSize(value) {
+      this.$set(this.pen, "size", value);
+      this.$emit("update-config", this.pen);
+    },
+
+    changePenColor(value) {
+      this.$set(this.pen, "color", value);
+      this.$emit("update-config", this.pen);
+    },
+
+    changeEraserSize(value) {
+      this.$set(this.eraser, "size", value);
+      this.$emit("update-config", this.eraser);
     },
 
     cancelTool() {
@@ -210,19 +230,23 @@ export default {
   left: 0;
   bottom: 0;
   right: 0;
-  background: rgba(0,0,0,0.3);
+  z-index: 99;
+  background-color: rgba(0,0,0,0.1);
+}
+.option {
+  z-index: 100;
+  display: flex;
 }
 .pen-option {
   position: absolute;
-  z-index: 1;
   max-height: calc(100vh - 150px);
   overflow: auto;
   padding: 8px;
-  background-color: #ffffff;
+  background-color: #333;
   border-radius: 4px;
   box-shadow: rgb(26 26 26 / 20%) 0px 0px 12px;
-  top: 100%;
-  min-width: 260px;
+  left: 0;
+  top: calc(100% + 1em);
 }
 .color-picker {
   padding: 0;

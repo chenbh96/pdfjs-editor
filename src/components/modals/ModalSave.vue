@@ -7,7 +7,7 @@
     <div class="modal-content">
       <el-form label-position="right" size="small">
         <el-form-item label="文件名 (不包括后缀名)">
-          <el-input v-model="name"></el-input>
+          <el-input v-model="name" disabled></el-input>
         </el-form-item>
         <el-form-item label="新文件名">
           <el-input  v-model="tag"></el-input>

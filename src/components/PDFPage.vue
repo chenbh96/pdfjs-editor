@@ -246,7 +246,7 @@ export default {
           cCtx.beginPath();
           cCtx.lineWidth = 1;
           cCtx.strokeStyle = "#000";
-          cCtx.arc(newX * scale, newY * scale, 15, 0, 2 * Math.PI);
+          cCtx.arc(newX * scale, newY * scale, this.toolConfig.size/2 * PIXEL_RATIO , 0, 2 * Math.PI);
           cCtx.stroke();
           if (!this.selectedTool || !this.isMouseDown) {
             return;
@@ -354,7 +354,7 @@ export default {
       switch(tool) {
         case TOOLS.pen: 
           context.strokeStyle = toolConfig.color;
-          context.lineWidth = toolConfig.size;
+          context.lineWidth = toolConfig.size * PIXEL_RATIO;
           context.lineCap = 'round';
           context.beginPath();
           editContent.forEach(seg => {
@@ -379,7 +379,7 @@ export default {
           context.beginPath();
           context.strokeStyle = "#000";
           context.globalCompositeOperation = "destination-out";
-          context.lineWidth = "30";
+          context.lineWidth = toolConfig.size * PIXEL_RATIO;
           context.lineCap = 'round';
 
           editContent.forEach(seg => {
