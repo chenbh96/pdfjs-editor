@@ -53,6 +53,7 @@ const pdf = {
         if (!common.isEmpty(store.state.fid)) {
             requestBody.fid = store.state.fid;
         }
+        requestBody.oper_time = store.state.initTimestamp;
         return http.post(`${base[common.env]}/v1/pdf/index`, requestBody);
     },
     // 其他接口…………

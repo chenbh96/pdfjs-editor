@@ -12,6 +12,7 @@ const store = new Vuex.Store({
         fid: 0,
         students: [],
         firstSave: false,
+        initTimestamp: new Date().getTime(),
     },
     mutations: {
         setUserInfo(state, payload) {
