@@ -9,7 +9,8 @@
       <div v-if="isEdit" class="menu-option" @click.stop.prevent="save"><img src="@/assets/icons/save.png" />保存</div>
       <div v-if="getRole" class="menu-option" @click.stop.prevent="share"><img src="@/assets/icons/share.png" />布置</div>
       <div v-if="false" class="divider"/>
-      <div v-if="false" class="menu-option"><QuitIcon style="margin-right: 10px;"/>Quit</div>
+      <div v-if="isDownload" class="menu-option" @click.stop.prevent="download"><img src="@/assets/icons/save.png" />下载</div>
+      <div v-if="false" class="menu-option"><QuitIcon style="margin-right: 10px;"/>退出</div>
     </div>
   </a>
 </template>
@@ -60,6 +61,9 @@ export default {
       }
       return false
     },
+    isDownload() {
+      return this.$store.getters.isDownload;
+    },
     getRole() {
       if (this.user) {
         return this.user.role < 2
@@ -86,7 +90,10 @@ export default {
       this.$emit("save");
       this.showMenu = false;
     },
-
+    download() {
+      this.$emit("download");
+      this.showMenu = false;
+    },
     share() {
       this.$emit("share");
       this.showMenu = false;

@@ -45,6 +45,9 @@ export default {
           if (res.data.data.title) {
             localStorage.fm_title = res.data.data.title;
           }
+          if (res.data.data.download_level) {
+            _this.$store.dispatch("setDownload", res.data.data.download_level);
+          }
           if (res.data.data.user) {
             localStorage.fm_user =  JSON.stringify(res.data.data.user);
              // 异步获取学生和班级列表
@@ -75,6 +78,9 @@ export default {
           if (res.data.data.title) {
             localStorage.fm_title = res.data.data.title;
             _this.$store.dispatch("setTitle", res.data.data.title);
+          }
+          if (res.data.data.download_level) {
+            _this.$store.dispatch("setDownload", res.data.data.download_level);
           }
           if (res.data.data.user) {
             localStorage.fm_user =  JSON.stringify(res.data.data.user);

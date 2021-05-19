@@ -38,7 +38,12 @@ const pdf = {
             params: params
         });
     },
-
+    download(requestBody) {
+        if (!common.isEmpty(store.state.code)) {
+            requestBody.code = store.state.code;
+        }
+        return http.post(`${base[common.env]}/v1/pdf/download`, requestBody);
+    },
     /**
      * 保存pdf
      * @author   Liuxy

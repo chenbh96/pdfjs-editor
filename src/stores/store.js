@@ -10,6 +10,7 @@ const store = new Vuex.Store({
         dtype: 0,
         title: "",
         fid: 0,
+        isDownload: 0,
         students: [],
         firstSave: false,
         initTimestamp: new Date().getTime(),
@@ -23,6 +24,9 @@ const store = new Vuex.Store({
         },
         setTitle(state, payload) {
             state.title = payload;
+        },
+        setDownload(state, payload) {
+            state.isDownload = payload;
         },
         setStudents(state, payload) {
             state.students = payload
@@ -47,6 +51,9 @@ const store = new Vuex.Store({
         setTitle(context, payload) {
             context.commit('setTitle', payload);
         },
+        setDownload(context, payload) {
+            context.commit('setDownload', payload);
+        },
         setStudents(context, payload) {
             context.commit('setStudents', payload);
         },
@@ -63,6 +70,9 @@ const store = new Vuex.Store({
     getters: {
         getUserInfo(state) {
             return state.userInfo;
+        },
+        isDownload(state) {
+            return state.isDownload;
         }
     }
 });

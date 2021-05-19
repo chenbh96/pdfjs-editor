@@ -33,6 +33,7 @@
         class="menu-right-section"
         @save="modalSave"
         @share="modalRemark"
+        @download="fileDownload"
       />
 
       <slot name="header"></slot>
@@ -239,7 +240,12 @@ export default {
         this.editData.push(prevEdit);
       }
     },
-
+    fileDownload() {
+       var params = {}
+      this.$api.pdf.download(params).then(res => {
+        console.log(res.data);
+      });
+    },
     save(title, action) {
       clearTimeout(this.lastActionTimer);
       var ret = [];
