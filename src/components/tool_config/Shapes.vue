@@ -1,9 +1,9 @@
 <template>
   <div class="tool-bar">
-    <div v-for="color in options" :key="color" 
-    :class="getClass(color)"
-    :style="getStyle(color)"
-    @click.prevent.stop="click(color)">
+    <div v-for="shape in options" :key="shape" 
+    :class="getClass(shape)"
+    :style="getStyle(shape)"
+    @click.prevent.stop="click(shape)">
     </div>
   </div>
 </template>
@@ -11,14 +11,14 @@
 <script>
 
 export default {
-  name: 'Colors',
+  name: 'Shapes',
 
   components: {
   },
 
   props: {
     selected: {
-      default: "#E16165",
+      default: "rectangle",
     },
     options: {
       default: [],
@@ -33,7 +33,14 @@ export default {
       return (value == this.selected) ? "item selected" : "item" ;
     },
     getStyle(value) {
-      return "background-color: "+value;
+      switch(value) {
+        case "rectangle": {
+          return "";
+        }
+        case "circle": {
+          return "border-radius: 50%;";
+        }
+      }
     }
   }
 }
@@ -49,8 +56,7 @@ export default {
 .item {
   width: 20px;
   height: 20px;
-  border: 1px solid #888;
-  border-radius: 2px;
+  border: 2px solid #888;
 }
 
 .item:not(:last-child) {

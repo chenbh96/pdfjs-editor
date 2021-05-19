@@ -58,4 +58,8 @@ export default {
 .selected {
   background-color: #fff !important;
 }
+
+.item:focus {
+  outline: 0 !important;
+}
 </style>

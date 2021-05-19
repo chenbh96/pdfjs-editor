@@ -154,7 +154,7 @@ export default {
         tip: false,
       },
       lastActionTimer: null, // 最后操作倒计时
-      perPageData: {},
+      perPageData: {}, // 每页编辑步骤
       redoData: [],
       remark: "",
       tipMsg: "",
@@ -241,9 +241,14 @@ export default {
       }
     },
     fileDownload() {
-       var params = {}
+      var params = {}
+      var _this = this;
       this.$api.pdf.download(params).then(res => {
-        console.log(res.data);
+        if (res.data && res.data.data) {
+
+        } else {
+          _this.tip(TIP_MSG.fetchDownloadFail)
+        }
       });
     },
     save(title, action) {
@@ -332,7 +337,14 @@ export default {
     },
 
     modalRemark() {
-      this.modals.remark = true;
+      if (!common.isEmpty(this.editData) && this.$store.state.firstSave) {
+        this.save(this.$store.state.title, SAVE_MODE.EDIT);
+        this.modals.remark = true;
+      } else if (!common.isEmpty(this.editData)) {
+        this.modals.save = true;
+      } else {
+        this.modals.remark = true;
+      }
     },
 
     closeRemark() {

@@ -9,7 +9,7 @@
       <div v-if="isEdit" class="menu-option" @click.stop.prevent="save"><img src="@/assets/icons/save.png" />保存</div>
       <div v-if="getRole" class="menu-option" @click.stop.prevent="share"><img src="@/assets/icons/share.png" />布置</div>
       <div v-if="false" class="divider"/>
-      <div v-if="isDownload" class="menu-option" @click.stop.prevent="download"><img src="@/assets/icons/save.png" />下载</div>
+      <div v-if="false" class="menu-option" @click.stop.prevent="download"><img src="@/assets/icons/save.png" />下载</div>
       <div v-if="false" class="menu-option"><QuitIcon style="margin-right: 10px;"/>退出</div>
     </div>
   </a>

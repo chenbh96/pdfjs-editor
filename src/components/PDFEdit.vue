@@ -19,19 +19,34 @@
       <a id="highlighter" 
       @mouseup.prevent.stop="toggleHighlighter($event)"
       @touchend.prevent.stop="toggleHighlighter($event)" 
-      class="icon"
-      ><!-- <HighlighterIcon /> -->
+      class="icon">
         <img v-if="selected == 'highlighter'" src="@/assets/icons-blue/highlighter.png"/>
         <img v-else src="@/assets/icons/highlighter.png"/>
       </a>
     </el-tooltip>
 
+    <el-tooltip effect="dark" content="Shape" :open-delay=500 placement="bottom-start">
+      <a id="shape" 
+      @mouseup.prevent.stop="toggleHighlighter($event)"
+      @touchend.prevent.stop="toggleHighlighter($event)" 
+      class="icon">
+        <img v-if="selected == 'shape' && shape.shape == 'rectangle'" src="@/assets/icons-blue/rectangle.png"/>
+        <img v-else-if="shape.shape == 'rectangle'" src="@/assets/icons/rectangle.png"/>
+        <img v-else-if="selected == 'shape' && shape.shape == 'circle'" src="@/assets/icons-blue/circle.png"/>
+        <img v-else-if="shape.shape == 'circle'" src="@/assets/icons/circle.png"/>
+      </a>
+    </el-tooltip>
+    <div v-if="shape.show" class="screen" @mouseup.prevent.stop="toggleShape($event)"></div>
+    <div v-if="shape.show" class="pen-option option">
+      <Shapes :selected="shape.shape" :options="shape.shapeOptions" @select="changeShape" style="margin-right: 30px;"/>
+      <Colors :selected="shape.color" :options="shape.colorOptions" @select="changeShapeColor"/>
+    </div>
+
     <el-tooltip effect="dark" content="Eraser" :open-delay=500 placement="bottom-start">
       <a id="eraser" 
       @mouseup.prevent.stop="toggleEraser($event)"
       @touchend.prevent.stop="toggleEraser($event)" 
-      class="icon"
-      ><!-- <HighlighterIcon /> -->
+      class="icon">
         <img v-if="selected == 'eraser'" src="@/assets/icons-blue/eraser.png"/>
         <img v-else src="@/assets/icons/eraser.png"/>
       </a>
@@ -61,6 +76,7 @@ import PenIcon from '../assets/icon-pen.svg';
 import HighlighterIcon from '../assets/icon-highlighter.svg';
 import Sizes from './tool_config/Sizes';
 import Colors from './tool_config/Colors';
+import Shapes from './tool_config/Shapes';
 
 export default {
   name: 'PDFEdit',
@@ -70,6 +86,7 @@ export default {
     HighlighterIcon,
     Sizes,
     Colors,
+    Shapes,
   },
 
   props: {
@@ -90,9 +107,16 @@ export default {
         color: "rgba(255,255,0, 1)",
         size: 10,
       },
+      shape: {
+        show: false,
+        shapeOptions: ["rectangle", "circle"],
+        shape: "rectangle",
+        colorOptions: ["#E16165", "#66A8F4", "#69BC6F", "#EDC64F", "#000000"],
+        color: "#E16165",
+      },
       eraser: {
         show: false,
-        sizeOptions: [4, 6, 10, 14, 18],
+        sizeOptions: [4, 6, 10, 14, 18, 64],
         size: 10,
       },
     }
@@ -150,6 +174,26 @@ export default {
       }
     },
 
+    toggleShape(e, callback = false) {
+      var target = null;
+      if (e.target.tagName.toLowerCase() == 'a') {
+        target = e.target;
+      } else if (e.target.parentNode.tagName.toLowerCase() == 'a') {
+        target = e.target.parentNode;
+      } else {
+        this.shape.show = false;
+        return;
+      }
+
+      if (!callback && common.isDoubleClick(this.toggleHighlighter, e)) {
+        this.cancelTool();
+        return;
+      }
+      if (callback) {
+        this.toggleSelected(target);
+      }
+    },
+
     toggleEraser(e, callback = false) {
       var target = null;
       if (e.target.tagName.toLowerCase() == 'a') {
@@ -175,7 +219,6 @@ export default {
         return true;
       } else {
         this.cancelTool();
-        target.classList.add("selected");
         this.$emit("update-selected", target.id);
         this.$emit("update-config", this[target.id]);
         this[target.id].show = true;
@@ -194,17 +237,23 @@ export default {
       this.$emit("update-config", this.pen);
     },
 
+    changeShape(value) {
+      this.$set(this.shape, "shape", value);
+      this.$emit("update-config", this.shape);
+    },
+
+    changeShapeColor(value) {
+      this.$set(this.shape, "color", value);
+      this.$emit("update-config", this.shape);
+    },
+
     changeEraserSize(value) {
       this.$set(this.eraser, "size", value);
       this.$emit("update-config", this.eraser);
     },
 
     cancelTool() {
-      const selected = document.querySelector( '.selected' );
-      if (selected) {
-        selected.classList.remove('selected');
-        this.$emit("update-selected", null);
-      }
+      this.$emit("update-selected", null);
     },
     clickUndo() {
       this.$emit("undo");
@@ -231,7 +280,7 @@ export default {
   bottom: 0;
   right: 0;
   z-index: 99;
-  background-color: rgba(0,0,0,0.1);
+  background-color: rgba(0,0,0,0.3);
 }
 .option {
   z-index: 100;
@@ -242,7 +291,8 @@ export default {
   max-height: calc(100vh - 150px);
   overflow: auto;
   padding: 8px;
-  background-color: #333;
+  background-color: #404246;
+  padding: 10px 20px;
   border-radius: 4px;
   box-shadow: rgb(26 26 26 / 20%) 0px 0px 12px;
   left: 0;

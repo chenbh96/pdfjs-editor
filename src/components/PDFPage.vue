@@ -185,7 +185,8 @@ export default {
     mousedown(event) {
       this.isMouseDown = true;
       if (this.selectedTool && this.isMouseDown) {
-        [this.x, this.y] = [event.offsetX, event.offsetY];
+        this.x = this.position(event, this.editCanvas).x;
+        this.y = this.position(event, this.editCanvas).y;
       }
     },
 
@@ -200,6 +201,9 @@ export default {
             break;
           case TOOLS.eraser: 
             this.eraser(event);
+            break;
+          case TOOLS.shape:
+            this.shape(event, "finish");
             break;
         }
         if (this.currentEdit.length) {
@@ -255,6 +259,15 @@ export default {
           this.eraser(event, "draw");
           break;
         }
+        case TOOLS.shape: {
+          // 判断是否选中工具并且鼠标正在点击
+          if (!this.selectedTool || !this.isMouseDown) {
+            return;
+          }
+          event.preventDefault(); // 取消移动端拖拽滚动页面
+          this.shape(event, "draw");
+          break;
+        }
       }
     },
 
@@ -277,7 +290,7 @@ export default {
       };
     },
 
-    pen(event, mode="draw") {
+    pen(event, mode = "draw") {
       var layerCanvas = this.layerCanvas;
       const cCtx = layerCanvas.getContext('2d');
       cCtx.clearRect(0, 0, layerCanvas.width, layerCanvas.height);
@@ -300,7 +313,7 @@ export default {
       }
     },
 
-    highlighter(event, mode="draw") {
+    highlighter(event, mode = "draw") {
       var layerCanvas = this.layerCanvas;
       const cCtx = layerCanvas.getContext('2d');
       cCtx.clearRect(0, 0, layerCanvas.width, layerCanvas.height);
@@ -337,6 +350,27 @@ export default {
       this.y = newY;
 
       this.renderEdit(this.editCanvas, this.selectedTool, this.toolConfig, this.actualSizeViewport.width, this.currentEdit);
+    },
+
+    shape(event, mode = "draw") {
+      var layerCanvas = this.layerCanvas;
+      const cCtx = layerCanvas.getContext('2d');
+      cCtx.clearRect(0, 0, layerCanvas.width, layerCanvas.height);
+
+      var canvas = this.editCanvas;
+      if (mode == "draw") {
+        canvas = this.layerCanvas;
+        const newX = this.position(event, canvas).x;
+        const newY = this.position(event, canvas).y;
+        this.currentEdit = [{
+          sx: this.x,
+          sy: this.y,
+          dx: newX,
+          dy: newY
+        }];
+
+        this.renderEdit(canvas, this.selectedTool, this.toolConfig, this.actualSizeViewport.width, this.currentEdit);
+      }
     },
 
     /**
@@ -389,6 +423,25 @@ export default {
           context.stroke();
           context.globalCompositeOperation = "source-over";
           break;
+        case TOOLS.shape:
+          context.beginPath();
+          context.strokeStyle = toolConfig.color;
+          context.lineWidth = 4;
+          var pos = editContent[0];
+          if (toolConfig.shape == "rectangle") {
+            context.rect(pos.sx * scale, pos.sy * scale, (pos.dx - pos.sx) * scale, (pos.dy - pos.sy) * scale);
+          } else if (toolConfig.shape == "circle") {
+            var center = {
+              x: (pos.sx + pos.dx) / 2,
+              y: (pos.sy + pos.dy) / 2,
+            };
+            var radius = {
+              x: Math.abs((pos.dx - pos.sx) / 2),
+              y: Math.abs((pos.dy - pos.sy) / 2),
+            };
+            context.ellipse(center.x * scale, center.y * scale, radius.x * scale, radius.y * scale, 0, 0, Math.PI * 2);
+          }
+          context.stroke();
       }
     },
   },
