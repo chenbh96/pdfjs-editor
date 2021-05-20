@@ -27,7 +27,6 @@
         class="menu-right-section"
         @save="modalSave"
         @share="modalRemark"
-        @download="fileDownload"
       />
 
       <slot name="header"></slot>
@@ -253,17 +252,17 @@ export default {
         this.editData.push(prevEdit);
       }
     },
-    fileDownload() {
-      var params = {}
-      var _this = this;
-      this.$api.pdf.download(params).then(res => {
-        if (res.data && res.data.data) {
+    // fileDownload() {
+    //   var params = {}
+    //   var _this = this;
+    //   this.$api.pdf.download(params).then(res => {
+    //     if (res.data && res.data.data) {
 
-        } else {
-          _this.tip(TIP_MSG.fetchDownloadFail)
-        }
-      });
-    },
+    //     } else {
+    //       _this.tip(TIP_MSG.fetchDownloadFail)
+    //     }
+    //   });
+    // },
     save(title, action) {
       clearTimeout(this.lastActionTimer);
       var ret = [];

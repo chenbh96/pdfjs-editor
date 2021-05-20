@@ -88,7 +88,7 @@ export default {
       this.scrollTop = scrollTop;
       this.clientHeight = clientHeight;
     },
-    handleScroll(event) {
+    handleScroll() {
       this.$emit("scroll");
     },
   },
