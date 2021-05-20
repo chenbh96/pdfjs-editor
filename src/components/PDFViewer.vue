@@ -15,12 +15,6 @@
         />
       </div>
 
-      <PDFZoom
-        :scale="scale"
-        @change="updateScale"
-        @fit="updateFit"
-        />
-
       <PDFEdit
         :selected="selectedTool"
         @update-selected="updateSelectedTool"
@@ -64,9 +58,18 @@
           v-bind="{pages, scale, optimalScale, fit, currentPage, pageCount, isPreviewEnabled, selectedTool, toolConfig, perPageData}"
           @scale-change="updateScale"
           @edit-push="edit"
+          @scroll="handleScroll"
           />
       </template>
     </PDFData>
+
+    <div v-if="showZoom" class="zoom-hover box-shadow">
+      <PDFZoom
+        :scale="scale"
+        @change="updateScale"
+        @fit="updateFit"
+        />
+    </div>
 
     <div class="modal-shadow" v-if="showModal">
       <ModalShare class="modal-center box-shadow" 
@@ -159,6 +162,8 @@ export default {
       remark: "",
       tipMsg: "",
       tipTimer: null,
+      zoomShowTimer: null,
+      showZoom: false,
     };
   },
 
@@ -186,10 +191,18 @@ export default {
       const roundedScale = floor(scale, 2);
       if (isOptimal) this.optimalScale = roundedScale;
       this.scale = roundedScale;
+      clearTimeout(this.zoomShowTimer);
+      this.zoomShowTimer = setTimeout(() => {
+        this.showZoom = false;
+      }, 5000);
     },
 
     updateFit(fit) {
       this.fit = fit;
+      clearTimeout(this.zoomShowTimer);
+      this.zoomShowTimer = setTimeout(() => {
+        this.showZoom = false;
+      }, 5000);
     },
 
     updatePageCount(pageCount) {
@@ -373,6 +386,14 @@ export default {
       this.tipMsg = false;
       this.modals.tip = false;
     },
+
+    handleScroll() {
+      clearTimeout(this.zoomShowTimer);
+      this.showZoom = true;
+      this.zoomShowTimer = setTimeout(() => {
+        this.showZoom = false;
+      }, 5000);
+    },
   },
 
   watch: {
@@ -398,6 +419,7 @@ export default {
 
   mounted() {
     document.body.classList.add('overflow-hidden');
+    document.addEventListener('scroll', this.handleScroll);
   },
 };
 </script>
@@ -467,6 +489,21 @@ header {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
+}
+
+.zoom-hover {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 0.5em;
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 99;
+  background-color: #F0F2F4;
+  box-shadow: 0px 2px 16px 0px rgba(116, 116, 116, 0.4);
 }
 
 @media print {

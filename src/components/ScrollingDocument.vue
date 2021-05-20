@@ -3,6 +3,7 @@
     class="scrolling-document"
     v-scroll.immediate="updateScrollBounds"
     style="background-color: #efeff2;"
+    @scroll="handleScroll"
     >
     <ScrollingPage
       v-for="(page, index) in pages"
@@ -86,6 +87,9 @@ export default {
       const {scrollTop, clientHeight} = this.$el;
       this.scrollTop = scrollTop;
       this.clientHeight = clientHeight;
+    },
+    handleScroll(event) {
+      this.$emit("scroll");
     },
   },
 

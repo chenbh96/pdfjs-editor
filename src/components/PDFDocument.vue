@@ -7,6 +7,7 @@
     @page-jump="onPageJump"
     @pages-fetch="onPagesFetch"
     @pages-reset="fitWidth"
+    @scroll="handleScroll"
     >
     <PDFPage
       v-bind="{scale, optimalScale, page, isPageFocused, isElementFocused, index, selectedTool, toolConfig}"
@@ -145,6 +146,10 @@ export default {
 
     edit(value) {
       this.$emit("edit-push", value);
+    },
+
+    handleScroll() {
+      this.$emit("scroll");
     }
   },
 
